@@ -84,6 +84,13 @@ collection-level pre-request script adds both headers to every request from the
 empty, no auth headers are sent, which is what the mock server and public
 endpoints (pricing, IP lookup) expect.
 
+Do **not** fill the request **Authorization** tab. Postman's built-in API Key
+auth only supports one header, so this collection leaves Auth empty (or
+Inherit auth from parent) and injects both headers from the script instead.
+Put your keys in the active environment's `apiKey` and `secretApiKey` fields
+(use Current values in the Postman app so they stay off disk / out of git).
+After Send, the Console shows the outgoing headers if you need to confirm.
+
 ### Getting keys
 
 - **Sandbox, instantly with no signup:** send
@@ -100,6 +107,14 @@ values. Put your keys in Postman's local/current values or the Postman Vault,
 never in a committed file. `.gitignore` also excludes `*.local.*` files and
 `.env*`. If you need a local environment file with real keys, name it
 `<name>.local.environment.yaml`.
+
+### Placeholder query parameters
+
+OpenAPI generation fills optional query params with sample values
+(`domain=string`, `nameContains=string`, `tlds=string`, and so on). Those are
+sent as real filters, so a call like **Domain → List all domains (GET)** can
+return `SUCCESS` with an empty list. On the Params tab, uncheck or clear every
+filter you do not need and leave only what you intend (for example `start=0`).
 
 ## Usage
 
