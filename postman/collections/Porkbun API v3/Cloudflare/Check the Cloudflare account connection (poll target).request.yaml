@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  Whether this account has an active Cloudflare grant, and which Cloudflare account it points at.
+
+  **This is the poll target for the connect flow.** Minting the grant is a human action: Cloudflare's consent screen has to be completed in a browser, and the authorization is bound to the Porkbun web session that started it, so it cannot be driven over the API. When `connected` is `false` the response carries a `connectUrl` — send the account owner there, then poll this endpoint until `connected` is `true`.
+
+  Also available via POST.
+url: "{{baseUrl}}/cloudflare/getConnection"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/Check the Cloudflare account connection (poll target).resources/examples
+order: 1000

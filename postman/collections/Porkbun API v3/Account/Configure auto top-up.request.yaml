@@ -1,0 +1,34 @@
+$kind: http-request
+description: |-
+  Set the top-up amount, and/or switch auto top-up on or off.
+
+  `amount` stands on its own. It is what a top-up adds, and `POST /account/topup` charges the same figure on demand, so setting it without automating anything is a normal call: `{"amount": 10000}`.
+
+  `enabled: true` additionally makes it fire by itself and requires `threshold` (the balance, in integer US cents, below which a top-up happens) plus an amount — either in the same call or already on file. `enabled: false` stops it firing on a threshold and **keeps the amount**, because on-demand top-ups still use it.
+
+  **`amount` set over the API is capped at $500** ($5 minimum), because that value is also what `POST /account/topup` charges — an API key free to set it to anything would be setting its own limit, which is not a limit. A larger amount set by the account holder at porkbun.com/account/api is honoured as-is.
+
+  No card is touched here, and one cannot be added over the API. Supports `dryRun`.
+url: "{{baseUrl}}/account/autoTopup"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "enabled": true,
+      "threshold": 2000,
+      "amount": 5000,
+      "dryRun": true
+    }
+settings: {}
+examples: ./.resources/Configure auto top-up.resources/examples
+order: 2000

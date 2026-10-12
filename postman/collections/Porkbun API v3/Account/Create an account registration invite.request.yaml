@@ -1,0 +1,30 @@
+$kind: http-request
+description: |-
+  Generates a one-time invite token and URL that you send to a prospective user. When the user visits the URL they go through Porkbun's normal account creation flow — including CAPTCHA, address collection, and TOS acceptance — in the browser. The invite expires in 48 hours. Each token can only be used once.
+
+  Optionally supply an `email` to pre-fill the email field on the registration form.
+
+  Optionally supply a `returnUrl` (must be HTTPS) to redirect the user back to your platform after they complete registration.
+
+  After sending the invite URL, poll `/account/inviteStatus` to check whether the account was created.
+url: "{{baseUrl}}/account/invite"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "7QhSuJ7x1tmnuT@siZvqBjD.vxu",
+      "returnUrl": "https://yourapp.com/onboarding/complete"
+    }
+settings: {}
+examples: ./.resources/Create an account registration invite.resources/examples
+order: 4000

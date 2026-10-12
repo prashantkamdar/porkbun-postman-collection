@@ -1,0 +1,19 @@
+$kind: http-request
+description: Retrieve a specific DNS record by its numeric ID. Supports both GET (with header auth) and POST (with body or header auth).
+url: "{{baseUrl}}/dns/retrieve/:domain/:id"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+  - key: id
+    value: "123456789"
+    disabled: false
+    description: (Required) Numeric DNS record ID
+settings: {}
+examples: ./.resources/Retrieve DNS record by ID (GET).resources/examples
+order: 4000

@@ -1,0 +1,24 @@
+$kind: http-request
+name: "Sandbox: fire a sample webhook event"
+description: Sandbox only (requires a `pk1_sb_` key). Enqueues a signed sample webhook event to your registered endpoints so you can test your handler and signature verification for any event type on demand — including cron-driven events like `domain.expiring` that don't result from a single API call. Register an endpoint first with `POST /webhook/create`.
+url: "{{baseUrl}}/sandbox/triggerWebhook"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "eventType": "dns.record.deleted",
+      "domain": "string"
+    }
+settings: {}
+examples: ./.resources/Sandbox- fire a sample webhook event.resources/examples
+order: 3000

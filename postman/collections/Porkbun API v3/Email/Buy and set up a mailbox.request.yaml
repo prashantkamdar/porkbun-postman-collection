@@ -1,0 +1,35 @@
+$kind: http-request
+description: 'Buy one email hosting mailbox ($36.00 a year, renewing automatically; the current price is in /email/getMailboxes) and set it up in the same call. `cost` must equal the price in cents (`COST_MISMATCH` names it; `dryRun: true` with `cost: 0` quotes it). Paid from account credit by default, or directly with `payWith: "card"` / `"usdc"` as for domain purchases; counts toward the monthly API spend limit. Everything else is as /email/setupMailbox: generated password unless one is sent, DNS confirmation, verification. Accounts under 90 days old that have paid in crypto cannot buy it (`EMAIL_HOSTING_UNAVAILABLE`), as on the website. If the purchase succeeds but setup fails, the response says `setupComplete: false` with the `mailboxId` to finish with /email/setupMailbox.'
+url: "{{baseUrl}}/email/createMailbox/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "address": "me",
+      "cost": 3600,
+      "agreeToTerms": "yes",
+      "password": "string",
+      "confirmDnsChanges": true,
+      "dryRun": true,
+      "payWith": "usdc",
+      "cardPaymentId": "string",
+      "usdcCheckoutId": "string"
+    }
+settings: {}
+examples: ./.resources/Buy and set up a mailbox.resources/examples
+order: 8000

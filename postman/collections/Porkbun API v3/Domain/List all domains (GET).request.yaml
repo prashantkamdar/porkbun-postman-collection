@@ -1,0 +1,69 @@
+$kind: http-request
+description: |-
+  Retrieve domains in the authenticated account. Results are returned in chunks of up to 1000 domains. Use `start` to paginate.
+
+  **Filtering:** all filter parameters are optional. Combine them freely.
+
+  - `domain` — exact match (returns 0 or 1)
+  - `nameContains` — substring search
+  - `tlds` — limit to these TLDs
+  - `expiringWithinDays` — only domains expiring within N days
+  - `autoRenew` — `yes` / `no`
+  - `apiAccess` — `yes` / `no` (filter to domains the API key can operate on)
+  - `sortName` — `domain` / `tld` / `create_date` / `expire_date`
+  - `sortDirection` — `asc` / `desc`
+
+  Supports both GET (with header auth) and POST (with body or header auth). For multi-value `tlds` on GET, use bracket syntax: `?tlds[]=com&tlds[]=io`.
+url: "{{baseUrl}}/domain/listAll?start=0&includeLabels=no&domain=string&nameContains=string&expiringWithinDays=2951&tlds=string&tlds=string&autoRenew=no&apiAccess=no&sortName=domain&sortDirection=asc"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: start
+    value: "0"
+    disabled: false
+    description: Zero-based offset for pagination. Returns up to 1000 domains per call.
+  - key: includeLabels
+    value: no
+    disabled: false
+    description: Return label metadata for each domain. Defaults to no.
+  - key: domain
+    value: string
+    disabled: false
+    description: Exact domain name match. Returns 0 or 1 result.
+  - key: nameContains
+    value: string
+    disabled: false
+    description: Substring match against the full domain name. Case-insensitive.
+  - key: expiringWithinDays
+    value: "2951"
+    disabled: false
+    description: Filter to domains expiring within this many days.
+  - key: tlds
+    value: string
+    disabled: false
+    description: "Limit to these TLDs (no leading dot). Use bracket form: `?tlds[]=com&tlds[]=io`."
+  - key: tlds
+    value: string
+    disabled: false
+    description: "Limit to these TLDs (no leading dot). Use bracket form: `?tlds[]=com&tlds[]=io`."
+  - key: autoRenew
+    value: no
+    disabled: false
+    description: Filter to domains with auto-renew on or off.
+  - key: apiAccess
+    value: no
+    disabled: false
+    description: Filter to domains opted in to API access.
+  - key: sortName
+    value: domain
+    disabled: false
+    description: "Field to sort by. Default: `expire_date` ascending."
+  - key: sortDirection
+    value: asc
+    disabled: false
+    description: "Sort direction. Default: asc."
+settings: {}
+examples: ./.resources/List all domains (GET).resources/examples
+order: 14000

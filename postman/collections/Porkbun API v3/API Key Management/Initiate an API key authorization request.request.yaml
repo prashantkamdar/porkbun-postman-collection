@@ -1,0 +1,30 @@
+$kind: http-request
+description: |-
+  Initiate an API key authorization flow. No credentials are required. Returns a `requestToken` and `authUrl` that the account holder must visit (while logged in to Porkbun in that browser) to approve the request. The `authUrl` is valid for **30 minutes** (long enough for a brand-new user to create an account and verify their email); if it lapses, call this endpoint again for a fresh token. After approval, call `/apikey/retrieve` to get the public API key. By default (legacy flow) the secret API key is shown only once, in the user's browser, and must be pasted into the application manually. To let an agent receive the secret without a browser copy, supply a PKCE `codeChallenge` (see the parameter below): the key is then minted lazily and BOTH keys are returned once from `/apikey/retrieve` to the caller presenting the matching `codeVerifier`.
+
+  **Rate limit:** 20 requests per IP per 3600 seconds.
+
+  SANDBOX: pass `sandbox: true` to skip approval and get a sandbox key pair back immediately (both `apikey` and `secretapikey` in the response, plus `sandbox: true`).
+url: "{{baseUrl}}/apikey/request"
+method: POST
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Acme deploy bot — my-project",
+      "codeChallenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+      "codeChallengeMethod": "S256",
+      "sandbox": false,
+      "returnUrl": "https://app.example.com/porkbun/callback",
+      "scopes": [
+        "dns"
+      ]
+    }
+settings: {}
+examples: ./.resources/Initiate an API key authorization request.resources/examples
+order: 1000

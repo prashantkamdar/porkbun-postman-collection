@@ -1,0 +1,20 @@
+$kind: http-request
+description: |-
+  Query a domain's **live authoritative nameservers** and return the records they answer with, writing nothing. This is what makes an inbound transfer non-destructive: a transfer moves only the delegation — EPP carries no zone data — so once the losing registrar stops answering for the zone, whatever it published is gone and unrecoverable. Run this **before** the nameservers move, then pass the result to `/dns/import/{domain}`.
+
+  The scan probes a wide list of well-known names (apex, common subdomains, MX, DKIM selectors, provider verification hosts) and consolidates wildcards. It cannot enumerate a zone — DNS has no listing operation and AXFR is universally refused — so treat it as thorough but **not exhaustive**. If the old registrar exposes the zone through its own API, that is authoritative: read it with your own credentials (they never need to reach Porkbun) and POST those records to `/dns/import` instead.
+
+  Metered separately at 20 calls per hour per account, because each call is roughly 90 DNS lookups.
+url: "{{baseUrl}}/dns/scan/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Discover the records a domain currently publishes.resources/examples
+order: 5000

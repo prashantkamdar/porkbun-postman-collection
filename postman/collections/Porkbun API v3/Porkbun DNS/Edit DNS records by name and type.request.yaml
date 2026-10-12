@@ -1,0 +1,38 @@
+$kind: http-request
+description: Replace the content of all records matching the given subdomain and type. SOA and NS records cannot be edited with this method (use edit by ID instead).
+url: "{{baseUrl}}/dns/editByNameType/:domain/:type/:subdomain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+  - key: type
+    value: A
+    disabled: false
+    description: "(Required) "
+  - key: subdomain
+    value: www
+    disabled: false
+    description: Subdomain portion only. Omit or leave empty for root domain records.
+body:
+  type: json
+  content: |-
+    {
+      "content": "5.6.7.8",
+      "ttl": 8860,
+      "prio": 4160,
+      "notes": "string"
+    }
+settings: {}
+examples: ./.resources/Edit DNS records by name and type.resources/examples
+order: 9000

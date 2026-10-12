@@ -1,0 +1,22 @@
+$kind: http-request
+description: Marks the account's phone number verified with the code from `POST /account/verifyPhone/send`. A wrong or expired code returns `PHONE_CODE_INVALID`; 10 wrong codes in an hour lock it for the hour (`PHONE_VERIFY_LIMIT`). The response says whether the email address is verified too, since purchases need both; verify the email the same way with `POST /account/verifyEmail/send` and `/confirm`.
+url: "{{baseUrl}}/account/verifyPhone/confirm"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "code": "string"
+    }
+settings: {}
+examples: ./.resources/Confirm the phone verification code.resources/examples
+order: 13000

@@ -1,0 +1,32 @@
+$kind: http-request
+description: |-
+  **Charges the saved payment method** and adds the money to account credit immediately. The call that unblocks work already in progress: enabling auto top-up does nothing until the next order trips the threshold, which is no help to a caller holding an `INSUFFICIENT_FUNDS` response right now.
+
+  **`amount` is optional.** Omitted, it charges the account's configured top-up amount, or $50 if the account has never set one — `amountSource` in the response says which of `configured`, `default` or `request` applied. Supplied, it charges that figure for this call only and leaves the stored setting alone, which is the point: an agent could always have written the amount to `/account/autoTopup` first, and making it do that turns a one-off charge into a silent edit of a setting the customer owns.
+
+  The card itself can only be saved outside the API, and a supplied amount is held to the same 500–50000 cent range as one set through `/account/autoTopup`. On top of that the dollars are bounded by the month: the account's **monthly spend limit** caps top-ups as well as domain spend (it is the account saying how much the API may move, and a card charge is the API moving money), and an account that has never set one still gets a $100/month ceiling. Card, auto top-ups set off by an API purchase, MPP and USDC all count toward it — `monthlyCeiling` and `ceilingSource` on `GET /account/autoTopup` say which is in force. Top-ups are also limited to 5 per day and 20 per month (`TOPUP_LIMIT_EXCEEDED`), and every successful charge emails the account holder.
+
+  Errors that matter: `NO_PAYMENT_METHOD` (nothing saved to charge — the account holder has to save a card or buy credit on the website), `CARD_DECLINED` (nothing was added; the card needs attention), `TOPUP_FAILED` (nothing was charged; retry once).
+
+  With a sandbox key this grants simulated credit and charges nothing (`simulated: true`). Supports `dryRun`, which previews the amount and charges nothing in any environment. Honours `Idempotency-Key`.
+url: "{{baseUrl}}/account/topup"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "amount": 2500,
+      "dryRun": true
+    }
+settings: {}
+examples: ./.resources/Top up account credit now.resources/examples
+order: 3000

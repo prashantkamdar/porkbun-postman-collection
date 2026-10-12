@@ -1,0 +1,15 @@
+$kind: http-request
+description: "Where a pending inbound transfer is and what it is waiting on: whether it is held at `PENDINGDNS`, whether its DNS zone exists, how many records are in it, what the domain currently delegates to, and the next step to take. Use it to resume a no-downtime transfer without keeping state of your own."
+url: "{{baseUrl}}/domain/getTransferSetup/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name.
+settings: {}
+examples: ./.resources/State of an in-flight inbound transfer.resources/examples
+order: 6000

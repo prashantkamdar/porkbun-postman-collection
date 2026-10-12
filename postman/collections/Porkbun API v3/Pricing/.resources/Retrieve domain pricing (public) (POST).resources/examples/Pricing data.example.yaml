@@ -1,0 +1,59 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/pricing/get"
+  method: POST
+  headers:
+    - key: X-API-Key
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "tld": "io",
+        "tlds": [
+          "string",
+          "string"
+        ]
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "status": "SUCCESS",
+        "unsupported": [
+          "nope"
+        ],
+        "pricing": {
+          "key_0": {
+            "registration": "9.73",
+            "renewal": "9.73",
+            "transfer": "9.73",
+            "specialType": "string",
+            "coupons": {
+              "key_0": {
+                "code": "string",
+                "max_per_user": 2266,
+                "first_year_only": "yes",
+                "type": "string",
+                "amount": 3736.49547342211
+              },
+              "key_1": {
+                "code": "string",
+                "max_per_user": 1345,
+                "first_year_only": "yes",
+                "type": "string",
+                "amount": 2373.9400575868785
+              }
+            }
+          }
+        }
+      }
+order: 1000

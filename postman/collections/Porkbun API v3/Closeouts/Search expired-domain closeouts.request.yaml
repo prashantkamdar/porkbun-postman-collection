@@ -1,0 +1,62 @@
+$kind: http-request
+description: |-
+  Search the closeout inventory. Closeouts are expired domains that did not sell at auction and are now offered at a fixed, descending price — there is no bidding, the first buyer at the current price takes the name.
+
+  Every filter is optional; with none you get the first page of the whole list plus `totalAvailable`. Page with `start`/`limit` until `start >= totalAvailable`.
+
+  **`age` and `registrationDate` are on every row and both are sortable.** On the website the inventory is paginated by price tier and registration date is not shown, so finding aged names means walking several tier pages and then doing a WHOIS lookup per candidate. `sortName=registrationDate&sortDirection=asc` returns the oldest registrations first in one call.
+
+  `price` is the closeout price alone. The binding total adds the renewal or transfer year you are also buying, and comes from `/closeout/get/{domain}` — it cannot be derived from search results, because a domain already at Porkbun is renewed while anything else is transferred in, and those are priced differently.
+url: "{{baseUrl}}/closeout/search?query=invest&tld=org&nameLength=4&ageMin=10&ageMax=30&priceMin=500&priceMax=3000&sortName=registrationDate&sortDirection=asc&start=0&limit=100"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: query
+    value: invest
+    disabled: false
+    description: Keyword match on the domain name.
+  - key: tld
+    value: org
+    disabled: false
+    description: Single TLD, with or without the leading dot. Omit to search all.
+  - key: nameLength
+    value: "4"
+    disabled: false
+    description: Exact SLD character count.
+  - key: ageMin
+    value: "10"
+    disabled: false
+    description: Minimum domain age in years. Pair with sortName=registrationDate to find aged names.
+  - key: ageMax
+    value: "30"
+    disabled: false
+    description: Maximum domain age in years.
+  - key: priceMin
+    value: "500"
+    disabled: false
+    description: Minimum closeout price, integer US cents. Converted to whole dollars for the provider, rounding outward so the range never excludes an item inside it.
+  - key: priceMax
+    value: "3000"
+    disabled: false
+    description: Maximum closeout price, integer US cents.
+  - key: sortName
+    value: registrationDate
+    disabled: false
+    description: "One of: domain, endTime, price, revenue, visitors, inboundLinks, registrationDate. Ascending on registrationDate means oldest registration first, which is how you find aged names. Ascending on revenue, visitors or inboundLinks puts the domains with no recorded figure first (they return null) — use desc on those to see the highest values; the response carries a `warnings` entry reminding you."
+  - key: sortDirection
+    value: asc
+    disabled: false
+    description: "`asc` or `desc`."
+  - key: start
+    value: "0"
+    disabled: false
+    description: Offset for paging. Default 0.
+  - key: limit
+    value: "100"
+    disabled: false
+    description: Rows per page, 1-500. Default 100.
+settings: {}
+examples: ./.resources/Search expired-domain closeouts.resources/examples
+order: 1000

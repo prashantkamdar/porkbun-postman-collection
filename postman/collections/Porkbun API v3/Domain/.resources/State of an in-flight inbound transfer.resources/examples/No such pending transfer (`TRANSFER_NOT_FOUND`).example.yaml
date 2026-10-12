@@ -1,0 +1,38 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/domain/getTransferSetup/:domain"
+  method: GET
+  headers:
+    - key: X-API-Key
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: domain
+      value: example.com
+      disabled: false
+      description: (Required) Domain name.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "status": "ERROR",
+        "message": "Invalid domain.",
+        "code": "INVALID_DOMAIN",
+        "account": "string",
+        "next_action": {
+          "type": "fix_request",
+          "hint": "Re-fetch the price via /domain/checkDomain and resend the matching cost.",
+          "url": "https://porkbun.com/account/api"
+        }
+      }
+order: 2000

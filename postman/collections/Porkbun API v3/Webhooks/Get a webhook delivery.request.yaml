@@ -1,0 +1,15 @@
+$kind: http-request
+description: Fetch a single delivery including the full event payload that was (or will be) sent and its delivery status. Read-only; supports GET (header auth) or POST (body or header auth).
+url: "{{baseUrl}}/webhook/delivery/:id"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: id
+    value: "9001"
+    disabled: false
+    description: "(Required) "
+settings: {}
+examples: ./.resources/Get a webhook delivery.resources/examples
+order: 10000

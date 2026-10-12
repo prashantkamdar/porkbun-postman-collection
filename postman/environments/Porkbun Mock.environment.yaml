@@ -1,0 +1,17 @@
+name: Porkbun Mock
+values:
+  - key: baseUrl
+    value: 'https://api.porkbun.com/api/json/v3/mock'
+    enabled: true
+    type: default
+    description: Porkbun's mock server. Schema-accurate example responses, no credentials, nothing is changed. Append ?status=error for the error shape.
+  - key: apiKey
+    value: ''
+    enabled: true
+    type: secret
+    description: Not required for the mock server.
+  - key: secretApiKey
+    value: ''
+    enabled: true
+    type: secret
+    description: Not required for the mock server.

@@ -1,0 +1,38 @@
+$kind: http-request
+description: |-
+  Retrieve domains listed on the Porkbun marketplace. Two modes:
+
+  - **Unfiltered (default):** paginated raw listing, up to 5000 entries per call via `start` / `limit`.
+  - **Filtered:** when any of `query`, `tlds`, `sldLengthMin`, `sldLengthMax`, or `sortName` is provided, results are filtered server-side. Filtered mode returns up to 1000 matching listings (matches the web UI's marketplace search).
+
+  `query` supports `+include` and `-exclude` prefixes per word against the SLD (e.g. `+ai -test` matches SLDs containing 'ai' but not 'test'). Token-based access is not supported.
+url: "{{baseUrl}}/marketplace/getAll"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "start": 0,
+      "limit": 1000,
+      "query": "ai -test",
+      "tlds": [
+        "com",
+        "io"
+      ],
+      "sldLengthMin": 3,
+      "sldLengthMax": 8,
+      "sortName": "domain",
+      "sortDirection": "desc"
+    }
+settings: {}
+examples: ./.resources/List marketplace domains (POST).resources/examples
+order: 2000

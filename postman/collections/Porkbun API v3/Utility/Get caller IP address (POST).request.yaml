@@ -1,0 +1,15 @@
+$kind: http-request
+description: Returns the caller's public IP address. No credentials required. Use the `api-ipv4.porkbun.com` hostname if you need to force an IPv4 address.
+url: "{{baseUrl}}/ip"
+method: POST
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/Get caller IP address (POST).resources/examples
+order: 3000

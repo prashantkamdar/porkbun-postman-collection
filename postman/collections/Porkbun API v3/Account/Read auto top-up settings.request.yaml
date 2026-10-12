@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  What auto top-up is set to, whether a payment method is on file, and what `POST /account/topup` would charge right now (`effectiveAmount`).
+
+  Auto top-up is how unattended work stops dead-ending on `INSUFFICIENT_FUNDS`: when an order drops the balance below `threshold`, Porkbun charges the saved payment method for `amount` and adds the credit.
+
+  If `paymentMethodOnFile` is false the settings are inert and the response says so in `warnings` — a card can only be saved on the website, never over the API.
+url: "{{baseUrl}}/account/autoTopup"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/Read auto top-up settings.resources/examples
+order: 1000

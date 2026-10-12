@@ -1,0 +1,41 @@
+$kind: http-request
+description: |-
+  **Applies to:** Both products — the `sku` decides which.
+
+  Provision hosting (Secure Static Hosting or Cloud for WordPress) for a domain in the account. The FIRST provision for a domain starts a **15-day free trial** ($0 now) that **auto-renews** at the plan price when the trial ends; a re-provision after deprovision is charged immediately, to account credit or directly in USDC with `"payWith": "usdc"` (HTTP 402, then repeat with `PAYMENT-SIGNATURE`; kept as account credit if provisioning fails) or by card with `"payWith": "card"` (a hold, captured only if provisioning succeeds), and counts toward the monthly API spend limit (one free trial per domain). Provisioning **switches the domain to Porkbun nameservers** if it isn't already — pass `agreeToNameserverChange: true` to allow that. Supports `dryRun`. Remote setup can be async: `status` may be `PENDING` — poll `/hosting/get` until `ACTIVE` before deploying.
+
+  **Cloud for WordPress:** pass a `CLOUDWORDPRESS…` sku to provision a managed WordPress site instead of static hosting. The file endpoints (deploy/files/deleteFile/makeDir) do not apply — manage the site through WordPress, using `/hosting/createWpCredentials/{domain}` for REST API credentials.
+
+  **Rate limit:** 10 provisions per account per hour (`dryRun` calls are free).
+url: "{{baseUrl}}/hosting/create/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "sku": "PIXIESECURESTATICM2",
+      "acknowledgedCost": 7337,
+      "agreeToTerms": "yes",
+      "agreeToNameserverChange": false,
+      "payWith": "card",
+      "usdcCheckoutId": "string",
+      "cardPaymentId": "string",
+      "dryRun": true
+    }
+settings: {}
+examples: ./.resources/Provision hosting — a static site or a WordPress site.resources/examples
+order: 2000

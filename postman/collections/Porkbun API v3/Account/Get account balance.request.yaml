@@ -1,0 +1,10 @@
+$kind: http-request
+description: "Returns the available account credit balance. Authenticate using `X-API-Key` and `X-Secret-API-Key` headers, or `Authorization: Bearer <token>`."
+url: "{{baseUrl}}/account/balance"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/Get account balance.resources/examples
+order: 6000

@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  A single closeout plus `totalPrice` — the closeout price plus the registration year that comes with it. That total is what `/closeout/buy` will charge and what it expects back as `cost`.
+
+  `localDomain` tells you which side of the pricing you are on: true means the name is already at Porkbun and is renewed, false means it is transferred in. `available` is false once somebody has claimed it.
+url: "{{baseUrl}}/closeout/get/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/One closeout, with the binding total.resources/examples
+order: 2000

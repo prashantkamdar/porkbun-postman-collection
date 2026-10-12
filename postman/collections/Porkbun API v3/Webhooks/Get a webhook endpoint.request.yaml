@@ -1,0 +1,15 @@
+$kind: http-request
+description: Fetch a single webhook endpoint by id, including its signing secret and delivery health. Read-only; supports GET (header auth) or POST (body or header auth).
+url: "{{baseUrl}}/webhook/get/:id"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: id
+    value: "42"
+    disabled: false
+    description: "(Required) "
+settings: {}
+examples: ./.resources/Get a webhook endpoint.resources/examples
+order: 3000

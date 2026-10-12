@@ -1,0 +1,6 @@
+workflows:
+  syncSpecToCollection:
+    - spec: ../postman/specs/porkbun-openapi.json
+      collection: ../postman/collections/Porkbun API v3
+      options:
+        folderStrategy: Tags

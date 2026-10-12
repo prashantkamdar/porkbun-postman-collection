@@ -1,0 +1,15 @@
+$kind: http-request
+description: Return the domain's four contacts (registrant, admin, tech, billing) with their current field values. Also available via POST.
+url: "{{baseUrl}}/domain/getContacts/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Get domain contacts.resources/examples
+order: 29000

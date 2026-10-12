@@ -1,0 +1,10 @@
+$kind: http-request
+description: Return the catalog of event types a webhook endpoint can subscribe to. Read-only; supports GET (header auth) or POST (body or header auth).
+url: "{{baseUrl}}/webhook/eventTypes"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/List subscribable event types.resources/examples
+order: 1000

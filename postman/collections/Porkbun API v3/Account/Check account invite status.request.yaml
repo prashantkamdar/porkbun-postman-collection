@@ -1,0 +1,22 @@
+$kind: http-request
+description: |-
+  Returns the current status of a registration invite created by your API key.
+
+  - `PENDING` — the invite URL has not yet been used
+  - `ACCEPTED` — the user completed registration; `newAccountId` contains their account ID
+  - `EXPIRED` — the invite was not used within 48 hours or was canceled
+
+  You can only query invites created by your own API key. Pass credentials via `X-API-Key` and `X-Secret-API-Key` headers.
+url: "{{baseUrl}}/account/inviteStatus?token=string"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: token
+    value: string
+    disabled: false
+    description: (Required) The `inviteToken` returned by `/account/invite`
+settings: {}
+examples: ./.resources/Check account invite status.resources/examples
+order: 5000

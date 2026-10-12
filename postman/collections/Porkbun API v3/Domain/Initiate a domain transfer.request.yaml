@@ -1,0 +1,69 @@
+$kind: http-request
+description: |-
+  Initiates an inbound domain transfer to Porkbun, paid from account credit, directly in USDC, or by card. The transfer is processed asynchronously and typically takes 5–7 days to complete.
+
+  **Requirements:**
+  - Account email and phone must be verified.
+  - Sufficient account credit to cover the transfer cost, or `"payWith": "usdc"` / `"card"` to pay directly.
+  - Domain must not already be in your account.
+  - No other active transfer for the same domain.
+  - `.uk` and manage-only TLDs are not supported via API.
+  - Premium domain transfers are not supported via API.
+  - Some registries refuse registrant contacts on temporary or encrypted email providers and suspend domains that use one. `.in` and its second levels are the first; a transfer whose registrant contact uses one is refused with `REGISTRANT_EMAIL_NOT_ACCEPTED` before any charge. This is about the contact recorded on the domain, not about who hosts mail for it.
+
+  ## Dry run
+
+  Add `dryRun: true` to validate everything and preview the cost WITHOUT initiating the transfer or charging — nothing is created. Example response:
+
+  ```json
+  {
+    "status": "SUCCESS",
+    "dryRun": true,
+    "wouldSucceed": true,
+    "operation": "transfer",
+    "domain": "example.com",
+    "tld": "com",
+    "available": "unavailable",
+    "premium": false,
+    "duration": 1,
+    "cost": 999,
+    "costDisplay": "$9.99",
+    "balance": 5000,
+    "sufficientFunds": true,
+    "message": "Dry run: this transfer would succeed and cost $9.99. No order was created and no charge was made.",
+    "requestId": "019e04fa-5f22-7c93-8a41-2e9d0b3f6c77"
+  }
+  ```
+
+  **Paying for it.** Two ways. **From prepaid account credit** (the default): no card on file is charged at purchase time, so the balance has to be there first. Read it with `GET /account/balance`; add to it with `POST /account/topup` (a saved card, with the account holder's OK), `POST /account/topupMpp` (the user's card from a Stripe Link agent wallet), `POST /account/topupCrypto` (USDC) or at https://porkbun.com/account/credit, and auto top-up at https://porkbun.com/account/api keeps it filled. Too little credit returns `INSUFFICIENT_FUNDS` with `cost`, `balance`, `shortfall` and `usdcAmountToCover` in cents. **Or directly in USDC:** add `"payWith": "usdc"` and an x402 client pays the HTTP 402 this returns (`PAYMENT_REQUIRED`, terms in the `PAYMENT-REQUIRED` header) and repeats the request with `PAYMENT-SIGNATURE`; no credit is needed, and if the purchase fails the payment stays on the account as credit (https://porkbun.com/llms/guides/pay-with-usdc-x402). **Or by card with a hold:** `"payWith": "card"` returns a single-use `payUrl` to pay from a Stripe Link agent wallet (it only authorizes); repeat with `cardPaymentId`, and the hold is captured if the purchase succeeds or released if it fails (https://porkbun.com/llms/guides/pay-with-card-mpp). Either way the account's monthly API spend limit applies ($100 a month until the account holder sets their own; `MONTHLY_SPEND_LIMIT_EXCEEDED`). `dryRun: true` reports cost and balance without charging, and `dryRun` with `cost: 0` returns a quote.
+url: "{{baseUrl}}/domain/transfer/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: string
+    disabled: false
+    description: (Required) The domain name to transfer (e.g. `example.com`).
+body:
+  type: json
+  content: |-
+    {
+      "authCode": "string",
+      "cost": 9000,
+      "holdForDnsSetup": true,
+      "payWith": "usdc",
+      "usdcCheckoutId": "string",
+      "cardPaymentId": "string",
+      "dryRun": true
+    }
+settings: {}
+examples: ./.resources/Initiate a domain transfer.resources/examples
+order: 5000

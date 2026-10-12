@@ -1,0 +1,30 @@
+$kind: http-request
+description: |-
+  Replace the authorization code on an inbound transfer that stalled because the code was wrong, and re-queue it — instead of cancelling, refunding and re-submitting.
+
+  The new code is validated against the registry before it is stored, so a bad code is rejected here (`INVALID_AUTH_CODE`) rather than failing again later. Only transfers in a repairable state qualify; anything else returns `TRANSFER_NOT_REPAIRABLE`. Supports `dryRun`.
+url: "{{baseUrl}}/domain/updateTransferAuthCode/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name.
+body:
+  type: json
+  content: |-
+    {
+      "authCode": "string"
+    }
+settings: {}
+examples: ./.resources/Replace the auth code on a stuck transfer.resources/examples
+order: 10000

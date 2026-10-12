@@ -1,0 +1,40 @@
+$kind: http-request
+description: |-
+  **Spends account credit, or pays directly in USDC with `"payWith": "usdc"` (HTTP 402, then repeat with `PAYMENT-SIGNATURE`; kept as account credit if the claim fails), or by card with `"payWith": "card"` (a hold, captured only if the claim succeeds).** Counts toward the monthly API spend limit. Buys a closeout at its current price and claims the name with the provider in one call. Send `cost` as the exact `totalPrice` from `/closeout/get/{domain}`; any other value is refused with `COST_MISMATCH` so a caller can never be charged a price it did not name. `dryRun: true` with `cost: 0` returns a quote and charges nothing. Honours `Idempotency-Key`.
+
+  **The domain does not arrive immediately.** Claiming reserves it; the provider then has to release it, which usually takes a few days. Poll `/domain/listAll` or subscribe to the `domain.registered` webhook rather than expecting it in your account when this returns.
+
+  Every post-charge failure refunds automatically and says so via `refunded: true` — including losing the race to another buyer (`CLOSEOUT_UNAVAILABLE`) and the price moving between quote and claim (`COST_MISMATCH`). Closeouts are first-come at a fixed price, so a lost race is not worth retrying on the same name.
+
+  Not available with a sandbox key (`SANDBOX_UNSUPPORTED`): the inventory provider has no test environment, so a purchase cannot be rehearsed without claiming a real name. Use `dryRun` against a live key instead — it validates and prices without charging.
+
+  Eligibility is the same as registering a domain, plus verified email and phone. There is no account-age or prior-order requirement — a first-time customer can buy a closeout, which matters because listings are first-come and often gone within minutes. An account that support has blocked from auctions and closeouts (past-due invoices, or an auction terms violation) returns `CLOSEOUT_NOT_ELIGIBLE`, which is not retryable.
+url: "{{baseUrl}}/closeout/buy/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "cost": 1684,
+      "payWith": "card",
+      "usdcCheckoutId": "string",
+      "cardPaymentId": "string",
+      "dryRun": true
+    }
+settings: {}
+examples: ./.resources/Buy a closeout outright.resources/examples
+order: 3000

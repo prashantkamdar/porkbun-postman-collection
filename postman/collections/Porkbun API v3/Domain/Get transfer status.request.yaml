@@ -1,0 +1,15 @@
+$kind: http-request
+description: "Returns the most recent transfer record for the specified domain in your account. Authenticate using `X-API-Key` and `X-Secret-API-Key` headers, or `Authorization: Bearer <token>`."
+url: "{{baseUrl}}/domain/getTransfer/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: string
+    disabled: false
+    description: (Required) The domain name (e.g. `example.com`).
+settings: {}
+examples: ./.resources/Get transfer status.resources/examples
+order: 11000

@@ -1,0 +1,28 @@
+$kind: http-request
+description: |-
+  Returns a signed, single-use payment link (valid 15 minutes, bound to this account and amount) that an AI agent pays with the user's **card** over MPP, the Machine Payments Protocol (mpp.dev), using a Stripe Shared Payment Token from its agent wallet (Stripe's Link Agent Wallet). No card needs to be saved at Porkbun. Nothing is charged by this call.
+
+  The agent's MPP client requests `payUrl` (POST) and gets HTTP `402` with a `WWW-Authenticate: Payment` challenge (`method="stripe"`, `intent="charge"`); its wallet mints a token for the user's card, the client retries with `Authorization: Payment <credential>`, and the credit is added at once: the response carries `credited_cents` and the new `balance_cents`, with a `Payment-Receipt` header. For example: `npx @stripe/link-cli mpp pay <payUrl> -X POST --context "..."`. Newer Link CLI versions stop after creating the spend request: once the person approves in Link, complete it with `link-cli mpp pay <payUrl> --spend-request-id <lsrq_id> -X POST`. Link refuses a `--context` shorter than 100 characters: it is what the user reads when approving the spend, so say what it is for and the dollar amount, worded fresh for each payment (Link can refuse an identical repeat).
+
+  Same limits as card top-ups (`POST /account/topup`): $5-$500, the monthly ceiling, 5 a day and 20 a month (`TOPUP_LIMIT_EXCEEDED`). Not available on sandbox keys (`SANDBOX_UNSUPPORTED`).
+url: "{{baseUrl}}/account/topupMpp"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "amount": 11072,
+      "dryRun": false
+    }
+settings: {}
+examples: ./.resources/Top up credit with the user's card, paid by an agent (MPP).resources/examples
+order: 16000

@@ -1,0 +1,48 @@
+$kind: http-request
+description: |-
+  Retrieve domains in the authenticated account. Results are returned in chunks of up to 1000 domains. Use `start` to paginate.
+
+  **Filtering:** all filter parameters are optional. Combine them freely.
+
+  - `domain` — exact match (returns 0 or 1)
+  - `nameContains` — substring search
+  - `tlds` — limit to these TLDs
+  - `expiringWithinDays` — only domains expiring within N days
+  - `autoRenew` — `yes` / `no`
+  - `apiAccess` — `yes` / `no` (filter to domains the API key can operate on)
+  - `sortName` — `domain` / `tld` / `create_date` / `expire_date`
+  - `sortDirection` — `asc` / `desc`
+
+  Supports both GET (with header auth) and POST (with body or header auth). For multi-value `tlds` on GET, use bracket syntax: `?tlds[]=com&tlds[]=io`.
+url: "{{baseUrl}}/domain/listAll"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "start": 0,
+      "includeLabels": "no",
+      "domain": "example.com",
+      "nameContains": "shop",
+      "expiringWithinDays": 30,
+      "tlds": [
+        "com",
+        "io"
+      ],
+      "autoRenew": "yes",
+      "apiAccess": "yes",
+      "sortName": "create_date",
+      "sortDirection": "asc"
+    }
+settings: {}
+examples: ./.resources/List all domains (POST).resources/examples
+order: 13000

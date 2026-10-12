@@ -1,0 +1,20 @@
+$kind: http-request
+description: Get the metadata for a single domain in the authenticated account. Returns the same per-domain shape as `listAll` items but as a single object. Returns HTTP 404 with code `DOMAIN_NOT_FOUND` if the domain isn't in the account.
+url: "{{baseUrl}}/domain/get/:domain?includeLabels=no"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: includeLabels
+    value: no
+    disabled: false
+    description: Return label metadata. Defaults to no.
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Fully qualified domain name in the authenticated account.
+settings: {}
+examples: ./.resources/Get a single domain.resources/examples
+order: 15000

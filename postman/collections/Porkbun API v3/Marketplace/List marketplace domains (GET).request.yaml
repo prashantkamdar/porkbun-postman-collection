@@ -1,0 +1,50 @@
+$kind: http-request
+description: |-
+  GET form of `/marketplace/getAll` for read-friendly filtering and URL-shareable searches. Authenticate via `X-API-Key` and `X-Secret-API-Key` headers, or `Authorization: Bearer <token>`. All filter params are optional and mirror the POST body. For multi-value `tlds`, use bracket syntax: `?tlds[]=com&tlds[]=io`.
+
+  See the POST documentation for the full filtering semantics (unfiltered pagination vs filtered mode, `+include` / `-exclude` query prefixes, sort options).
+url: "{{baseUrl}}/marketplace/getAll?query=string&tlds=string&tlds=string&sldLengthMin=2951&sldLengthMax=2951&sortName=sld_length&sortDirection=asc&start=4909&limit=3473"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: query
+    value: string
+    disabled: false
+    description: "SLD substring search. Multi-word; prefix a term with `-` to exclude. Example: `ai -test`."
+  - key: tlds
+    value: string
+    disabled: false
+    description: "Filter to listings under these TLDs (without leading dot). Use bracket form: `?tlds[]=com&tlds[]=io`."
+  - key: tlds
+    value: string
+    disabled: false
+    description: "Filter to listings under these TLDs (without leading dot). Use bracket form: `?tlds[]=com&tlds[]=io`."
+  - key: sldLengthMin
+    value: "2951"
+    disabled: false
+    description: Minimum SLD character length.
+  - key: sldLengthMax
+    value: "2951"
+    disabled: false
+    description: Maximum SLD character length.
+  - key: sortName
+    value: sld_length
+    disabled: false
+    description: Field to sort filtered results by.
+  - key: sortDirection
+    value: asc
+    disabled: false
+    description: Sort direction.
+  - key: start
+    value: "4909"
+    disabled: false
+    description: Pagination offset (unfiltered mode only).
+  - key: limit
+    value: "3473"
+    disabled: false
+    description: Page size (unfiltered mode only). Default 1000, max 5000.
+settings: {}
+examples: ./.resources/List marketplace domains (GET).resources/examples
+order: 1000

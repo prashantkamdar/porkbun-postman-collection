@@ -1,0 +1,21 @@
+$kind: http-request
+name: "Mock server: example response for an endpoint"
+description: "Credential-free. Mirror any real endpoint path after `/mock` (e.g. `/mock/domain/listAll`, `/mock/dns/create/example.com`) to get a schema-accurate example success response. Append `?status=error` for the error-response shape. Touches no datastore; signalled by the `X-Porkbun-Mock: true` header."
+url: "{{baseUrl}}/mock/:path?status=error"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: status
+    value: error
+    disabled: false
+    description: Set to `error` to return the error-response shape.
+pathVariables:
+  - key: path
+    value: string
+    disabled: false
+    description: (Required) The real endpoint path to mock, e.g. `domain/listAll`.
+settings: {}
+examples: ./.resources/Mock server- example response for an endpoint.resources/examples
+order: 2000

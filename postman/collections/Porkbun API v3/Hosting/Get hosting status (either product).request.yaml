@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  **Applies to:** Both products.
+
+  Return the Secure Static Hosting status for a domain (plan, server, trial, expiry, auto-renew), or `hosting: null` if none. Also available via POST.
+url: "{{baseUrl}}/hosting/get/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Get hosting status (either product).resources/examples
+order: 3000

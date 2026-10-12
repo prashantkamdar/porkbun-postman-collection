@@ -1,0 +1,30 @@
+$kind: http-request
+description: |-
+  Release a transfer held at `PENDINGDNS` into the registry pipeline. Nothing releases a held transfer on a timer — this call is the only thing that does.
+
+  Refuses with `TRANSFER_ZONE_EMPTY` if the zone has no records, which is the outage the hold exists to prevent. Pass `force: true` only if the domain genuinely needs no DNS at Porkbun. Supports `dryRun`.
+url: "{{baseUrl}}/domain/startTransfer/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name.
+body:
+  type: json
+  content: |-
+    {
+      "force": true
+    }
+settings: {}
+examples: ./.resources/Release a held transfer to the registry.resources/examples
+order: 8000

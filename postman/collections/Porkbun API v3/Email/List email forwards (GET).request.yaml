@@ -1,0 +1,20 @@
+$kind: http-request
+description: "The email forwards on a domain: each `address` at the domain and the `forwardTo` mailbox it is delivered to (an address can forward to several). `limits` gives how many the domain has and may have; `dnsConfigured` says whether the apex MX records in the Porkbun zone point at Porkbun forwarding (if the domain uses other nameservers, those decide). Supports GET with header auth."
+url: "{{baseUrl}}/email/getForwards/:domain"
+method: GET
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/List email forwards (GET).resources/examples
+order: 2000

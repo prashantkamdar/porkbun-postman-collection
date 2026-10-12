@@ -1,0 +1,26 @@
+$kind: http-request
+description: |-
+  Every Cloudflare move this account has requested, with status and message. Queue rows are never deleted, so this doubles as the audit trail. Also available via POST.
+
+  **Status values** (poll until one of the terminal ones):
+
+  | status | meaning | terminal |
+  |--------|---------|----------|
+  | `queued` | accepted, waiting for the worker | no |
+  | `working` | a run is touching this row right now | no |
+  | `setup` | the zone exists in the customer's Cloudflare account but Cloudflare has not provisioned it yet (`initializing`). **The nameservers have not been touched** — the domain still resolves from Porkbun. Cloudflare can sit here for hours when an account has a backlog of zones it never activated | no |
+  | `activating` | nameservers repointed; waiting for Cloudflare to mark the zone active. Legitimately slow (registry + resolver propagation) — allow up to 72h, and a real move has been observed taking 59h | no |
+  | `connected` / `done` | the move finished | **yes** |
+  | `skipped` | not moved, and `message` says why (DNSSEC live, custom nameservers, no longer in the account) | **yes** |
+  | `failed` / `error` | the move did not complete; `message` says why. Re-queue with `/cloudflare/retry/{domain}` | **yes**, with one exception: a row that failed waiting on Cloudflare is re-checked for up to 30 days, so it can still close out as `connected` (or have its `message` updated to say it is now retryable) if Cloudflare activates the zone late |
+  | `undone` | the nameservers were put back on Porkbun — either the customer undid the move, or the domain stopped resolving while Cloudflare had not activated it yet and we restored it without waiting for the deadline | **yes** |
+
+  Poll on a sensible interval (a few seconds early on, then back off) — a zone typically leaves `queued` within seconds but can sit in `setup` or `activating` while Cloudflare provisions the zone and DNS propagates.
+url: "{{baseUrl}}/cloudflare/getQueue"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/List every Cloudflare move for the account.resources/examples
+order: 4000

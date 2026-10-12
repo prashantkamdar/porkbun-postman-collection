@@ -1,0 +1,11 @@
+$kind: collection
+description: |-
+  Move a customer's domains into **their own Cloudflare account**: we create the zone, copy across the DNS records we hold, and repoint the registry nameservers at Cloudflare.
+
+  Two stages, and the first one needs a human:
+
+  1. **Connect the Cloudflare account (browser, one time).** Cloudflare's consent screen cannot be completed over the API. Send the account owner to `https://porkbun.com/account/connectCloudflare`, then poll `GET /cloudflare/getConnection` until `connected` is `true`.
+  2. **Move domains (API).** `GET /cloudflare/inventory` to see what's eligible, `POST /cloudflare/connect` to queue, then poll `/cloudflare/getQueue`. `POST /cloudflare/rollback/{domain}` undoes a move; `POST /cloudflare/retry/{domain}` re-queues a failure.
+
+  Queueing is asynchronous and per-domain: a call returns *queued*, never *connected*, and `skipped` (DNSSEC live, custom nameservers, already connected) is a normal outcome carrying a reason, not a failure.
+order: 10000

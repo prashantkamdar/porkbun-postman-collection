@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  Expired domains that did not sell at auction, offered at a fixed price with no bidding — first buyer at the current price takes the name.
+
+  The price descends on a schedule, so a listing is often gone within minutes; treat a search result as perishable and re-check the price before buying.
+
+  Search returns `age` and `registrationDate` on every row and both are sortable, which is the part the website cannot do — it paginates by price tier and does not show registration date at all.
+order: 15000

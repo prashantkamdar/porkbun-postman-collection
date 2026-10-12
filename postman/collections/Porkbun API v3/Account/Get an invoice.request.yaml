@@ -1,0 +1,15 @@
+$kind: http-request
+description: "One invoice as data: bill-to details, payment method (card brand and last four only), each line with its term and resulting domain expiry, and gross, refunded and net totals. The same figures as the PDF."
+url: "{{baseUrl}}/account/invoice/:orderId"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: orderId
+    value: "2951"
+    disabled: false
+    description: (Required) Invoice (order) ID, from `GET /account/invoices`.
+settings: {}
+examples: ./.resources/Get an invoice.resources/examples
+order: 8000

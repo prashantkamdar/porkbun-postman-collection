@@ -1,0 +1,15 @@
+$kind: http-request
+description: "Whether a checkout from `POST /account/topupCrypto` has been paid and credited. `state`: ACTIVE (not paid), PROCESSING (paid, being credited), COMPLETED (credited), EXPIRED or FAILED. Returns the current balance too."
+url: "{{baseUrl}}/account/topupCryptoStatus/:checkoutId"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: checkoutId
+    value: string
+    disabled: false
+    description: "(Required) "
+settings: {}
+examples: ./.resources/Status of a USDC top-up.resources/examples
+order: 11000

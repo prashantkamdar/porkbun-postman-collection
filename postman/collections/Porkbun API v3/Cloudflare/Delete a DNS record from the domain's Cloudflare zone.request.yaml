@@ -1,0 +1,34 @@
+$kind: http-request
+description: |-
+  **This writes to the Cloudflare zone that actually answers for the domain**, unlike `/dns/*`, which manages Porkbun's nameservers and no longer affects resolution once a domain has moved.
+
+  The record is read before deletion, so the response reports exactly what was removed and a bad id fails before anything is destroyed. Supports `dryRun`.
+url: "{{baseUrl}}/cloudflare/deleteRecord/:domain/:recordId"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+  - key: recordId
+    value: 59a5742f71ceeac69b2b3510356d8672
+    disabled: false
+    description: (Required) Cloudflare record id from /cloudflare/getRecords.
+body:
+  type: json
+  content: |-
+    {
+      "dryRun": true
+    }
+settings: {}
+examples: ./.resources/Delete a DNS record from the domain's Cloudflare zone.resources/examples
+order: 17000

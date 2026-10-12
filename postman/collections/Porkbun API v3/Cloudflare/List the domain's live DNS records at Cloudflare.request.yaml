@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  The domain's DNS records **as Cloudflare currently holds them**, each with its `proxied` flag and whether it is `proxiable` at all.
+
+  Once a domain has moved, this is the authoritative record set — `/dns/retrieve` reads the Porkbun zone, which is no longer the one answering queries. Requires the move to have finished (`ZONE_NOT_READY` otherwise). Also available via POST.
+url: "{{baseUrl}}/cloudflare/getRecords/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/List the domain's live DNS records at Cloudflare.resources/examples
+order: 10000

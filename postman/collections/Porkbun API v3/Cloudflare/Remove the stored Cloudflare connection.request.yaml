@@ -1,0 +1,14 @@
+$kind: http-request
+description: Revoke and forget this account's Cloudflare grant. Domains already moved stay on Cloudflare and keep resolving; this only stops us making further changes on the customer's behalf. Reconnecting requires the browser authorization again. Supports `dryRun`.
+url: "{{baseUrl}}/cloudflare/disconnect"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/Remove the stored Cloudflare connection.resources/examples
+order: 8000

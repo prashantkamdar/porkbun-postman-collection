@@ -1,0 +1,22 @@
+$kind: http-request
+description: Enqueue a `webhook.test` event to the endpoint so you can confirm reachability and that your signature verification works. The endpoint must be ACTIVE. Delivery is asynchronous (usually within a minute).
+url: "{{baseUrl}}/webhook/test"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "id": 42
+    }
+settings: {}
+examples: ./.resources/Send a test event.resources/examples
+order: 7000

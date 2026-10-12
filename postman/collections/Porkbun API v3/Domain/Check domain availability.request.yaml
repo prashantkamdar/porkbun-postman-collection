@@ -1,0 +1,29 @@
+$kind: http-request
+description: |-
+  Check if a domain is available for registration and retrieve current pricing. Includes registration, renewal, and transfer prices.
+
+  **Rate limit:** Configurable per API key. Default is 10 checks per 10 seconds per account (raised from 1 per 10 seconds in 3.29). The window is intentionally 10 seconds rather than 1, so a batch of candidate names can be checked back-to-back. `/domain/checkSingleDomain` draws on the same budget. Rate limit usage is returned in the `limits` field of the response.
+
+  **Sustained bulk checking.** An account that checks about 1,800 names over three hours while registering little of what it checks (fewer than one domain per 200 names over a day) is treated as scanning for the next 24 hours: its checks, single and bulk, on every API version, share a budget of 50 names per 5 minutes. Over it, the call is refused whole with `RATE_LIMIT_EXCEEDED`, `reason: "SUSTAINED_BULK_CHECKING"` and `retryAfter`; nothing is part-answered. Normal use, including checking a long list of candidate names once, is nowhere near this. Accounts that buy (100 or more registrations in a year) and affiliates sending orders are never treated as scanning, and a per-key limit from support overrides it.
+url: "{{baseUrl}}/domain/checkDomain/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/Check domain availability.resources/examples
+order: 2000

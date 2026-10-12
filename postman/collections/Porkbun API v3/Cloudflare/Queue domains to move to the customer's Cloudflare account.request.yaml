@@ -1,0 +1,41 @@
+$kind: http-request
+description: |-
+  Queue one or many domains. For each one we create the zone in the customer's own Cloudflare account, copy across the DNS records we hold, and repoint the registry nameservers at Cloudflare.
+
+  **Asynchronous.** Work runs on a background job over the next few minutes, so a successful call means *queued*, never *connected* — poll `/cloudflare/getQueue` or `/cloudflare/get/{domain}`.
+
+  **`skipped` is a normal outcome, not an error.** DNSSEC live, custom nameservers, already connected, already in progress: each domain comes back under `queued`, `skipped` or `alreadyQueued` with its own reason. Read the reasons rather than treating a non-empty `skipped` as failure.
+
+  Eligibility, ownership and nameserver state are re-checked immediately before each domain is acted on, so a domain accepted here can still be skipped later.
+
+  Re-submitting a domain is safe: the queue row is the unit of truth and is updated in place.
+
+  Supports `dryRun: true`, which returns the same per-domain verdicts without queueing anything.
+
+  Requires an active Cloudflare connection (`CLOUDFLARE_NOT_CONNECTED` otherwise). Limits: 500 domains per call, 2000 domains per account per hour.
+
+  After queueing, poll `/cloudflare/get/{domain}`: the row moves `queued` → `working` → `setup` → `activating` → `connected`. `setup` means Cloudflare has the zone but has not provisioned it yet, so the nameservers have deliberately not been touched. `activating` means the nameservers are already repointed and Cloudflare is confirming the zone, which can take a while as DNS propagates.
+url: "{{baseUrl}}/cloudflare/connect"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "domains": [
+        "example.com",
+        "example.net"
+      ],
+      "dryRun": false
+    }
+settings: {}
+examples: ./.resources/Queue domains to move to the customer's Cloudflare account.resources/examples
+order: 3000

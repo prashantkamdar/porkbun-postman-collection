@@ -1,0 +1,115 @@
+$kind: http-request
+description: |-
+  Edit the domain's contacts. Send a `contacts` object keyed by role (`registrant`, `admin`, `tech`, `billing`) containing ANY subset of roles — unspecified roles keep their current values — or a single `contact` object to apply to all four. Behaves like the website: on thick TLDs the change is pushed to the registry, and a **registrant** change (name/organization/email) triggers the same material-change record and new-owner notice/verification email (no 60-day transfer lock is imposed). Per-TLD extension data (e.g. .us nexus, .ca legalType) is preserved. Supports `dryRun`.
+
+  **`state` is matched against the official list for the country**, the same list the website's dropdown is built from, so case, accents and short codes all work: `NEW JERSEY`, `new jersey` and `NJ` are all stored as `New Jersey`, and `MEXICO CITY` as `Mexico City`. This matters because some registries validate the field and compare it case sensitively — .mx refuses `NEW JERSEY` and requires `Ciudad de México` for Mexico City, which Porkbun substitutes for you. For a TLD whose registry validates the field (currently the .mx family) a state that matches nothing is refused up front with `INVALID_STATE`, and the response lists every accepted value for that country in `validStates` — better than the registry's own "Object does not exist". For every other TLD an unrecognised state is sent through unchanged rather than rewritten. If a registry then refuses it, the contact is NOT created and no contacts are changed; the error names the registry's complaint.
+
+  **Address-validated TLDs.** On a **registrant** change for a TLD that requires a validated address (`.de`, `.nrw`, `.uk`/`.co.uk`/…, `.us`, `.ca`, `.nyc`, `.au`, `.eu`, `.in`/`.co.in`/…, `.nz`/`.co.nz`/…), the API runs Google Address Validation (per-account rate-limited + 24h cached). If the address needs correction the call returns `ADDRESS_VALIDATION_REQUIRED` with a `suggestedAddress` and `addressValidationStatus`; re-submit with `addressValidationChoice` = `accept_suggestion` (save the standardized address) or `use_as_entered` (keep yours — stays blocked if a real correction was offered). For `.de`, DENIC registry verification is then attempted automatically (address-fingerprint / email); if it still needs a proof-of-address document upload, that is completed at porkbun.com. **Still not supported via API:** a registrant name/organization change on a `.au` domain is an auDA paid ownership trade and returns `REGISTRANT_CHANGE_NOT_SUPPORTED` (do it at porkbun.com). Admin/tech/billing edits are unaffected everywhere.
+url: "{{baseUrl}}/domain/updateContacts/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "contacts": {
+        "registrant": {
+          "firstName": "Ada",
+          "lastName": "Lovelace",
+          "organization": "Analytical Engines",
+          "address1": "1 Countess Rd",
+          "address2": "string",
+          "address3": "string",
+          "city": "London",
+          "state": "",
+          "postalCode": "NW5 1AA",
+          "country": "GB",
+          "phone": "2071234567",
+          "phoneCountryCode": "44",
+          "fax": "string",
+          "email": "ada@example.com"
+        },
+        "admin": {
+          "firstName": "Ada",
+          "lastName": "Lovelace",
+          "organization": "Analytical Engines",
+          "address1": "1 Countess Rd",
+          "address2": "string",
+          "address3": "string",
+          "city": "London",
+          "state": "",
+          "postalCode": "NW5 1AA",
+          "country": "GB",
+          "phone": "2071234567",
+          "phoneCountryCode": "44",
+          "fax": "string",
+          "email": "ada@example.com"
+        },
+        "tech": {
+          "firstName": "Ada",
+          "lastName": "Lovelace",
+          "organization": "Analytical Engines",
+          "address1": "1 Countess Rd",
+          "address2": "string",
+          "address3": "string",
+          "city": "London",
+          "state": "",
+          "postalCode": "NW5 1AA",
+          "country": "GB",
+          "phone": "2071234567",
+          "phoneCountryCode": "44",
+          "fax": "string",
+          "email": "ada@example.com"
+        },
+        "billing": {
+          "firstName": "Ada",
+          "lastName": "Lovelace",
+          "organization": "Analytical Engines",
+          "address1": "1 Countess Rd",
+          "address2": "string",
+          "address3": "string",
+          "city": "London",
+          "state": "",
+          "postalCode": "NW5 1AA",
+          "country": "GB",
+          "phone": "2071234567",
+          "phoneCountryCode": "44",
+          "fax": "string",
+          "email": "ada@example.com"
+        }
+      },
+      "contact": {
+        "firstName": "Ada",
+        "lastName": "Lovelace",
+        "organization": "Analytical Engines",
+        "address1": "1 Countess Rd",
+        "address2": "string",
+        "address3": "string",
+        "city": "London",
+        "state": "",
+        "postalCode": "NW5 1AA",
+        "country": "GB",
+        "phone": "2071234567",
+        "phoneCountryCode": "44",
+        "fax": "string",
+        "email": "ada@example.com"
+      },
+      "dryRun": false,
+      "addressValidationChoice": "accept_suggestion"
+    }
+settings: {}
+examples: ./.resources/Update domain contacts.resources/examples
+order: 30000

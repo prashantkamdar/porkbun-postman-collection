@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  Create, read, update and delete DNS records in **Porkbun's** nameservers, including DNSSEC.
+
+  These endpoints manage the zone Porkbun serves. If a domain has been moved to a customer's own Cloudflare account (see the **Cloudflare** section), Cloudflare's nameservers answer for it instead — writes here still succeed and are kept in step in case the move is rolled back, but they do not change what resolves, and every response says so in `warnings`. Manage those domains with `/cloudflare/getRecords`, `/cloudflare/createRecord`, `/cloudflare/editRecord` and `/cloudflare/deleteRecord`.
+
+  The same is true, more bluntly, of a domain delegated to any other DNS provider: we hold a zone for every domain in the account, so a write always succeeds locally. Whenever the nameservers answering for the domain are not ours, the write response carries a `warnings` string saying so and naming them. Check `warnings` on every write; `GET /dns/preflight/{domain}` reports the same thing (`nameservers-ours`) before you start.
+order: 5000

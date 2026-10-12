@@ -1,0 +1,44 @@
+$kind: http-request
+description: |-
+  Find registered domains that are for sale: the partner aftermarket (Afternic, Sedo, Atom, NameBright and DAX listings, merged to the lowest price per name), Porkbun Marketplace, and DAX auctions. The same listings the website's search shows. Use it when `checkDomain` says a name is taken (its `aftermarketSearch` field links here), or to browse names for sale by keyword.
+
+  `query` is a keyword (`coffee`) or a full domain (`coffee.com`). For a full domain, `exactMatch` holds its listing if it has one, and related listings follow. Results come back as: the exact name first, then buy-now listings, then make-offer, then auctions, each by price.
+
+  **Read `saleType` before quoting a price.** `buy_now`: `price` is the price to buy it. `make_offer`: `price` is the seller's minimum offer, not a price. `auction`: `price` is the current bid. All prices are integer US cents and are the current listed price; the binding price is set at checkout.
+
+  **Buying is on the website, not the API:** send the user to the listing's `buyUrl`. An aftermarket name arrives by transfer from the seller, usually within a few days (`fastTransfer: true` is quicker).
+
+  A cold search queries several marketplaces and can take a few seconds; results are cached for 10 minutes. Limited to 20 searches a minute per account (`RATE_LIMIT_EXCEEDED`). If a source cannot be reached, the others are still returned and `sourcesUnavailable` names it. Also accepts POST with the same fields in the body. Works with sandbox keys (the listings are real).
+url: "{{baseUrl}}/aftermarket/search?query=coffee&tld=com&saleType=make_offer&priceMin=10000&priceMax=500000&limit=50"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: query
+    value: coffee
+    disabled: false
+    description: (Required) A keyword or a full domain.
+  - key: tld
+    value: com
+    disabled: false
+    description: Only listings on this TLD, with or without the leading dot.
+  - key: saleType
+    value: make_offer
+    disabled: false
+    description: Only this kind of listing.
+  - key: priceMin
+    value: "10000"
+    disabled: false
+    description: Minimum price, integer US cents.
+  - key: priceMax
+    value: "500000"
+    disabled: false
+    description: Maximum price, integer US cents.
+  - key: limit
+    value: "50"
+    disabled: false
+    description: Listings to return (1-200, default 50). `total` says how many matched.
+settings: {}
+examples: ./.resources/Search domains for sale on the aftermarket.resources/examples
+order: 1000

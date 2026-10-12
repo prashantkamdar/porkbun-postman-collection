@@ -1,0 +1,10 @@
+$kind: http-request
+description: "Returns all active inbound domain transfers for your account (excludes completed and canceled transfers). Authenticate using `X-API-Key` and `X-Secret-API-Key` headers, or `Authorization: Bearer <token>`."
+url: "{{baseUrl}}/domain/listTransfers"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/List active transfers.resources/examples
+order: 12000

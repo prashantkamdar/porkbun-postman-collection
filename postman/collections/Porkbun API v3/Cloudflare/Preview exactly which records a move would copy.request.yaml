@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  Which DNS records we would create in Cloudflare for this domain, and which we would drop, **without queueing anything**. The honest answer to "what will this do to my DNS" before committing.
+
+  Records are always created DNS-only (grey cloud); use `/cloudflare/setProxy` afterwards to turn the proxy on. Also available via POST.
+url: "{{baseUrl}}/cloudflare/preview/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Preview exactly which records a move would copy.resources/examples
+order: 11000

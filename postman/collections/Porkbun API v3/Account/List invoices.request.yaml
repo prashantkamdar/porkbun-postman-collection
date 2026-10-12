@@ -1,0 +1,22 @@
+$kind: http-request
+description: "The account's invoices (one per order), newest first, like the orders page on porkbun.com. `total_cents` is what the customer was left paying: refunds are netted out, and `state` says whether the invoice is paid, refunded or partially refunded. Any of the account's API keys can read them."
+url: "{{baseUrl}}/account/invoices?year=2951&start=0&limit=50"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: year
+    value: "2951"
+    disabled: false
+    description: Only invoices from this year, e.g. 2026.
+  - key: start
+    value: "0"
+    disabled: false
+    description: Offset for paging.
+  - key: limit
+    value: "50"
+    disabled: false
+settings: {}
+examples: ./.resources/List invoices.resources/examples
+order: 7000

@@ -1,0 +1,10 @@
+$kind: http-request
+description: List all webhook endpoints registered on the authenticated account, including each endpoint's signing secret and delivery health. Read-only; supports GET (header auth) or POST (body or header auth).
+url: "{{baseUrl}}/webhook/list"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/List webhook endpoints.resources/examples
+order: 2000

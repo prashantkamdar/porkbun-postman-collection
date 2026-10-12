@@ -1,0 +1,29 @@
+$kind: http-request
+description: |-
+  Opens a Coinbase checkout to add account credit with USDC on Base, the same as Use Crypto on porkbun.com. Nothing is charged by this call. Pay it either way:
+
+  - `x402Url`: an AI agent with a wallet pays it directly over x402 (a gasless USDC transfer on Base, no page or person involved). This is how an agent gets past `INSUFFICIENT_FUNDS` on an account with no saved card.
+  - `payUrl`: a Coinbase page where a person pays.
+
+  Credit is added when the payment confirms (usually within a minute), less Coinbase's fee of about 1% (`estimatedFee_cents`, `estimatedCredit_cents`). To cover an `INSUFFICIENT_FUNDS` shortfall exactly, open the checkout for its `usdcAmountToCover`. Check `GET /account/topupCryptoStatus/{checkoutId}`. Payments are on-chain and cannot be reversed. Needs a verified email and phone and an account that is not bank-transfer-only (`CRYPTO_NOT_AVAILABLE` otherwise). Up to 10 checkouts per account per day. USDC counts toward the same monthly ceiling as card and MPP top-ups (the monthly spend limit, or $100 when none is set), checked when the checkout is opened, with unpaid checkouts from the last day counted as if paid (`TOPUP_LIMIT_EXCEEDED`). Not available on sandbox keys (`SANDBOX_UNSUPPORTED`; use `/sandbox/topup`).
+url: "{{baseUrl}}/account/topupCrypto"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "amount": 45883,
+      "dryRun": false
+    }
+settings: {}
+examples: ./.resources/Top up credit with USDC (x402).resources/examples
+order: 10000

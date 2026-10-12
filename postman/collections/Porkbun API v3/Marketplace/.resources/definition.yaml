@@ -1,0 +1,3 @@
+$kind: collection
+description: Browse domains listed for sale on Porkbun Marketplace (names Porkbun customers list themselves). To search every aftermarket at once (Afternic, Sedo, Atom, NameBright, DAX and Porkbun Marketplace), use `GET /aftermarket/search`.
+order: 13000

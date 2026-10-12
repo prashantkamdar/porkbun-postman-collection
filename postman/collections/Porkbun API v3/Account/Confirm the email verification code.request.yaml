@@ -1,0 +1,22 @@
+$kind: http-request
+description: Marks the account's email address verified with the code from the verification email (`POST /account/verifyEmail/send`, or any verification email sent in the last 3 days). The code must belong to this account and to the address being verified. A wrong, expired or superseded code returns `EMAIL_CODE_INVALID`; 10 wrong codes in an hour lock it for the hour (`EMAIL_VERIFY_LIMIT`). The response says whether the phone is verified too, since purchases need both. Accounts subscribed to `account.verification.completed` get a webhook.
+url: "{{baseUrl}}/account/verifyEmail/confirm"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "code": "string"
+    }
+settings: {}
+examples: ./.resources/Confirm the email verification code.resources/examples
+order: 15000

@@ -1,0 +1,92 @@
+$kind: http-request
+description: |-
+  Register a domain, paid from account credit, directly in USDC, or by card. Requirements:
+  - Account email and phone must be verified
+  - Enough **prepaid credit** to cover the price, or `"payWith": "usdc"` / `"card"` to pay directly (see "Paying for it" below)
+  - `agreeToTerms` must be `'yes'` or `'1'`
+  - `cost` must equal the current price for the domain's minimum registration duration (in pennies)
+  - Premium domains cannot be registered via API, and a single order cannot exceed $100 (`ORDER_TOO_LARGE`)
+
+  ## Paying for it
+
+  Three ways: from prepaid account credit (the default), directly in USDC, or directly by card with a hold.
+
+  **From account credit.** No card on file is charged at purchase time - the thing most first-time callers get wrong, because having a card saved is not enough; the balance has to be there before the call.
+  - Read the balance with `GET /account/balance` (cents, plus a display string).
+  - Add to it: `POST /account/topup` charges a saved card now (with the account holder's OK); `POST /account/topupMpp` returns a link an agent pays with the user's card from a Stripe Link agent wallet; `POST /account/topupCrypto` opens a USDC checkout an agent's wallet can pay over x402; or the account holder adds credit at https://porkbun.com/account/credit.
+  - Turn on **auto top-up** at https://porkbun.com/account/api so a saved card refills the balance when it drops below a threshold. The hands-off option for an agent that registers on its own.
+  - Rehearse with `dryRun: true`, which reports `cost`, `balance`, `sufficientFunds` and, when short, `shortfall`.
+
+  A purchase attempted without enough credit returns `INSUFFICIENT_FUNDS` carrying `cost`, `balance`, `shortfall`, `topUpAvailable` and `usdcAmountToCover` in cents, and a message naming them.
+
+  **Directly in USDC (x402).** Add `"payWith": "usdc"`. After every check passes, the call answers HTTP 402 `PAYMENT_REQUIRED` with Coinbase's x402 terms in the `PAYMENT-REQUIRED` header and charges nothing. An x402 client pays them and repeats the same request with a `PAYMENT-SIGNATURE` header, and the registration completes in that call, with the receipt in `PAYMENT-RESPONSE`. No credit is needed. If the registration fails after payment, the payment is not sent back to the wallet: it stays on the account as credit (`payment.keptAsCredit` and `balance_cents` in the error), ready to retry from credit. Guide: https://porkbun.com/llms/guides/pay-with-usdc-x402
+
+  **Directly by card, with a hold (MPP).** Add `"payWith": "card"`. The call answers HTTP 402 `PAYMENT_REQUIRED` with `method: "card"`, a single-use `payUrl` and a `cardPaymentId`, and charges nothing. Pay the `payUrl` with a Stripe Link agent wallet over MPP (for example `link-cli mpp pay <payUrl> -X POST`; the person approves in Link): that only **authorizes** the card. Repeat the request with `"cardPaymentId"` and the registration runs: if it succeeds the hold is captured, and if it fails the hold is released and nothing is charged. Guide: https://porkbun.com/llms/guides/pay-with-card-mpp
+
+  **Monthly limit.** Either way, purchases count toward the account's monthly API spend limit, $100 a month until the account holder sets their own at https://porkbun.com/account/api (`MONTHLY_SPEND_LIMIT_EXCEEDED`). Guide: https://porkbun.com/llms/guides/spend-limits
+
+  Registrations are always for the registry-minimum duration (usually 1 year).
+
+  **WHOIS privacy.** WHOIS privacy is automatically enabled on new registrations (when the TLD supports it). Pass the optional `whoisPrivacy` field to override this on a per-registration basis, or change the account-level default under Account Security Settings on porkbun.com/account.
+
+  **Rate limits (both apply):**
+  - Attempt limit (default: 1 attempt per second per account)
+  - Success limit (default: 1000 successful registrations per 86400 seconds per account)
+
+  Both limits are configurable per API key and their current values are returned in the `limits` field of the response.
+
+  ## Dry run
+
+  Add `dryRun: true` to validate everything and preview the cost WITHOUT registering or charging — nothing is created. Send `cost: 0` with it to be quoted rather than having to match a price you do not know yet, and note that a dry run is answered even when the balance is too low: `wouldSucceed` comes back false with `shortfall` saying by how much. Example response:
+
+  ```json
+  {
+    "status": "SUCCESS",
+    "dryRun": true,
+    "wouldSucceed": true,
+    "operation": "registration",
+    "domain": "example.com",
+    "tld": "com",
+    "available": "available",
+    "premium": false,
+    "duration": 1,
+    "cost": 973,
+    "costDisplay": "$9.73",
+    "balance": 5000,
+    "sufficientFunds": true,
+    "message": "Dry run: this registration would succeed and cost $9.73. No order was created and no charge was made.",
+    "requestId": "019e04fa-258d-7d11-aa86-4d5795c3fe8f"
+  }
+  ``` Every registration includes a free email hosting trial mailbox, waiting to be set up with /email/setupMailbox (see /email/getMailboxes).
+url: "{{baseUrl}}/domain/create/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "cost": 5169,
+      "agreeToTerms": "1",
+      "idnLanguage": "FRE",
+      "whoisPrivacy": false,
+      "payWith": "usdc",
+      "usdcCheckoutId": "string",
+      "cardPaymentId": "string",
+      "dryRun": false
+    }
+settings: {}
+examples: ./.resources/Register a domain.resources/examples
+order: 3000

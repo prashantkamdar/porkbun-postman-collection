@@ -1,0 +1,25 @@
+$kind: http-request
+description: |-
+  Retrieve default domain pricing information for all supported TLDs, or only the ones you ask for. Does not require authentication. Prices are in US dollars.
+
+  Filter with `tld` (one TLD) and/or `tlds` (several). Names are case-insensitive, a leading dot is ignored, and IDN TLDs may be sent in Unicode or punycode (`みんな` or `xn--q9jyb4c`). A TLD Porkbun does not sell is left out of `pricing` and listed in `unsupported`; if none of the requested TLDs is sold the response is `INVALID_TLD` (HTTP 400). No filter returns every TLD.
+url: "{{baseUrl}}/pricing/get"
+method: POST
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "tld": "io",
+      "tlds": [
+        "string",
+        "string"
+      ]
+    }
+settings: {}
+examples: ./.resources/Retrieve domain pricing (public) (POST).resources/examples
+order: 1000

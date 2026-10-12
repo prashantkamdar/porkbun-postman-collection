@@ -1,0 +1,15 @@
+$kind: http-request
+description: Retrieve all editable DNS records for a domain. SOA records and Porkbun default NS records are excluded. Supports both GET (with header auth) and POST (with body or header auth).
+url: "{{baseUrl}}/dns/retrieve/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Retrieve all DNS records (GET).resources/examples
+order: 2000

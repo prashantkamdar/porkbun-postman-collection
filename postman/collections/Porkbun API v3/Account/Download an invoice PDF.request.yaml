@@ -1,0 +1,15 @@
+$kind: http-request
+description: "The invoice as a PDF, base64-encoded in `contentBase64`: the same document as Download PDF on porkbun.com. Decode it and save it as `filename`."
+url: "{{baseUrl}}/account/invoicePdf/:orderId"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: orderId
+    value: "2951"
+    disabled: false
+    description: (Required) Invoice (order) ID, from `GET /account/invoices`.
+settings: {}
+examples: ./.resources/Download an invoice PDF.resources/examples
+order: 9000

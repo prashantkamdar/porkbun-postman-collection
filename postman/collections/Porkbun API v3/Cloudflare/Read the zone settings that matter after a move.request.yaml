@@ -1,0 +1,20 @@
+$kind: http-request
+description: |-
+  The Cloudflare zone settings worth caring about post-migration: `ssl`, `always_use_https`, `automatic_https_rewrites`, `min_tls_version`, `development_mode`, `cache_level`.
+
+  The important one is **`ssl`**: `flexible` means Cloudflare fetches your origin over plain HTTP while visitors see a padlock, so the response warns when it is `off` or `flexible`. Also available via POST.
+
+  If the account's Cloudflare authorization predates this feature it will not carry the `zone-settings.write` scope, and this returns `CLOUDFLARE_REAUTHORIZE_REQUIRED` with a `connectUrl`. Reconnecting is the same one-click browser flow and does not disturb domains already moved.
+url: "{{baseUrl}}/cloudflare/getZoneSettings/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Read the zone settings that matter after a move.resources/examples
+order: 13000

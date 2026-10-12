@@ -1,0 +1,3 @@
+$kind: collection
+description: "Email forwarding (forward an address at the domain to another mailbox) and email hosting (mailboxes: buy, set up, passwords)"
+order: 8000

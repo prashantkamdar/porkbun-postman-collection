@@ -1,0 +1,20 @@
+$kind: http-request
+description: "The domain's email hosting mailboxes, including ones bought or included as a trial that are still waiting to be set up (`status: PENDINGSETUP`, `address: null`). Also returns the price of another mailbox and the mail client settings. Supports GET with header auth."
+url: "{{baseUrl}}/email/getMailboxes/:domain"
+method: GET
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/List mailboxes (GET).resources/examples
+order: 6000

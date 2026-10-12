@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  **Applies to:** Secure Static Hosting only — a WordPress site returns `NOT_SUPPORTED_FOR_PRODUCT`.
+
+  List file/directory names under an optional `path` in the domain's hosting space. Also available via POST (send `path` in the body).
+url: "{{baseUrl}}/hosting/files/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/List site files (static hosting only).resources/examples
+order: 5000

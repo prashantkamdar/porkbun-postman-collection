@@ -1,0 +1,73 @@
+$kind: http-request
+description: |-
+  Renew a domain, paid from account credit, directly in USDC, or by card. Requirements:
+  - Domain must be in your account and active
+  - Domain must be opted in to API access
+  - Account email and phone must be verified
+  - Sufficient account credit, or `"payWith": "usdc"` / `"card"` to pay directly
+  - `cost` must equal the current renewal price for the domain's minimum renewal duration (in pennies)
+  - The domain must not have been registered or renewed in the last 30 days (`RENEWAL_TOO_SOON` otherwise, with `renewableAt`: when it can be renewed)
+  - Premium renewals are not currently supported via API
+
+  Renewals are always for the registry-minimum duration (usually 1 year). Use `/domain/checkDomain/{domain}` with `priceType=renewal` to get the current price before renewing.
+
+  **Rate limits (both apply):**
+  - Attempt limit (default: 1 attempt per second per account)
+  - Success limit (default: 1000 successful renewals per 86400 seconds per account)
+
+  Both limits are configurable per API key and their current values are returned in the `limits` field of the response.
+
+  ## Dry run
+
+  Add `dryRun: true` to validate everything and preview the cost WITHOUT renewing or charging — nothing is created. Example response:
+
+  ```json
+  {
+    "status": "SUCCESS",
+    "dryRun": true,
+    "wouldSucceed": true,
+    "operation": "renewal",
+    "domain": "example.com",
+    "tld": "com",
+    "available": "unavailable",
+    "premium": false,
+    "duration": 1,
+    "cost": 1099,
+    "costDisplay": "$10.99",
+    "balance": 5000,
+    "sufficientFunds": true,
+    "message": "Dry run: this renewal would succeed and cost $10.99. No order was created and no charge was made.",
+    "requestId": "019e04fa-3c11-7a02-9bd2-1f7c0e4a8b55"
+  }
+  ```
+
+  **Paying for it.** Two ways. **From prepaid account credit** (the default): no card on file is charged at purchase time, so the balance has to be there first. Read it with `GET /account/balance`; add to it with `POST /account/topup` (a saved card, with the account holder's OK), `POST /account/topupMpp` (the user's card from a Stripe Link agent wallet), `POST /account/topupCrypto` (USDC) or at https://porkbun.com/account/credit, and auto top-up at https://porkbun.com/account/api keeps it filled. Too little credit returns `INSUFFICIENT_FUNDS` with `cost`, `balance`, `shortfall` and `usdcAmountToCover` in cents. **Or directly in USDC:** add `"payWith": "usdc"` and an x402 client pays the HTTP 402 this returns (`PAYMENT_REQUIRED`, terms in the `PAYMENT-REQUIRED` header) and repeats the request with `PAYMENT-SIGNATURE`; no credit is needed, and if the purchase fails the payment stays on the account as credit (https://porkbun.com/llms/guides/pay-with-usdc-x402). **Or by card with a hold:** `"payWith": "card"` returns a single-use `payUrl` to pay from a Stripe Link agent wallet (it only authorizes); repeat with `cardPaymentId`, and the hold is captured if the purchase succeeds or released if it fails (https://porkbun.com/llms/guides/pay-with-card-mpp). Either way the account's monthly API spend limit applies ($100 a month until the account holder sets their own; `MONTHLY_SPEND_LIMIT_EXCEEDED`). `dryRun: true` reports cost and balance without charging, and `dryRun` with `cost: 0` returns a quote.
+url: "{{baseUrl}}/domain/renew/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "cost": 2937,
+      "payWith": "card",
+      "usdcCheckoutId": "string",
+      "cardPaymentId": "string",
+      "dryRun": false
+    }
+settings: {}
+examples: ./.resources/Renew a domain.resources/examples
+order: 4000

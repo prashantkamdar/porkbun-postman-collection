@@ -1,0 +1,10 @@
+$kind: http-request
+description: "Returns the account's API spend control settings, this month's spend, and the limits actually enforced: `spendLimit` on purchases and `topupLimit` on credit added over the API. The account holder sets the limit on the website (https://porkbun.com/account/api); it cannot be changed over the API. All amounts are in cents. Authenticate using `X-API-Key` and `X-Secret-API-Key` headers, or `Authorization: Bearer <token>`."
+url: "{{baseUrl}}/account/apiSettings"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/Get API spend settings.resources/examples
+order: 17000

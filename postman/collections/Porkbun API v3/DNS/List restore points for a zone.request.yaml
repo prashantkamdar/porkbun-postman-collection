@@ -1,0 +1,27 @@
+$kind: http-request
+description: |-
+  Every version of a zone we still hold, newest first.
+
+  **DNS is the only part of a stack with no undo, and this is it.** If a record was deleted or edited by mistake, you do not have to know what it used to say -- ask for the restore points, diff one against the live zone, and put it back.
+
+  Restore points are taken automatically: before the **first** write to a zone in each hour (so a session of edits costs one point, not one per record), before any bulk import or zone wipe, and before any restore. `recordCount` is the size of the zone **as it was at that moment**, not now.
+
+  `matchesLive` tells you which point the zone currently sits on without diffing each one. Up to 50 are returned.
+url: "{{baseUrl}}/dns/history/:domain"
+method: GET
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/List restore points for a zone.resources/examples
+order: 2000

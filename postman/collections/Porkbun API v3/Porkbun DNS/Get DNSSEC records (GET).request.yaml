@@ -1,0 +1,15 @@
+$kind: http-request
+description: Retrieve DNSSEC records associated with the domain at the registry. Supports both GET (with header auth) and POST (with body or header auth).
+url: "{{baseUrl}}/dns/getDnssecRecords/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Get DNSSEC records (GET).resources/examples
+order: 13000

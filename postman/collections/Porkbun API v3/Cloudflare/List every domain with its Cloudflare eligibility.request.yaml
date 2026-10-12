@@ -1,0 +1,13 @@
+$kind: http-request
+description: |-
+  Every domain in the account with a `state` (`eligible`, `warn`, `blocked`, `connected`, `inprogress`) and a human-readable `reason`.
+
+  Read this **before** queueing to see what will be skipped and why. Works even with no Cloudflare connection yet, so an agent can plan while the owner is still authorizing. Also available via POST.
+url: "{{baseUrl}}/cloudflare/inventory"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/List every domain with its Cloudflare eligibility.resources/examples
+order: 2000

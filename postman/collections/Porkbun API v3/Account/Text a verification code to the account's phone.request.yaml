@@ -1,0 +1,26 @@
+$kind: http-request
+description: |-
+  Purchases and top-ups need a verified email address and phone number, and accounts are not asked to verify the phone at signup, so `VERIFICATION_REQUIRED` is often the first error a new account sees. This texts (or calls) a code to the phone number already on the account; ask the person for it and pass it to `POST /account/verifyPhone/confirm`. The number cannot be chosen or changed over the API.
+
+  One live code at a time: a second request within 10 minutes returns `codeAlreadySent` instead of texting again (send `"channel": "call"` if the text never arrived). Up to 5 sends a day (`PHONE_VERIFY_LIMIT`). Numbers in countries where the website requires a CAPTCHA for phone verification, or accounts with no phone number, get `PHONE_VERIFY_UNAVAILABLE` and verify on the website. Already verified: `alreadyVerified: true`. Not available on sandbox keys.
+url: "{{baseUrl}}/account/verifyPhone/send"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "channel": "sms",
+      "dryRun": false
+    }
+settings: {}
+examples: ./.resources/Text a verification code to the account's phone.resources/examples
+order: 12000

@@ -1,0 +1,67 @@
+$kind: http-example
+name: Rate limit exceeded (code RATE_LIMIT_EXCEEDED). Wait Retry-After seconds, then retry the same request.
+request:
+  url: "{{baseUrl}}/dns/getDnssecRecords/:domain"
+  method: POST
+  headers:
+    - key: X-API-Key
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+    - key: Idempotency-Key
+      value: 3f0c9a52-6d1e-4c8e-9b7a-2f5d1e0c4a11
+      disabled: false
+      description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: domain
+      value: example.com
+      disabled: false
+      description: "(Required) "
+  body:
+    type: json
+    content: |-
+      {
+        "apikey": "pk1_...",
+        "secretapikey": "sk1_..."
+      }
+response:
+  statusCode: 429
+  statusText: Too Many Requests
+  headers:
+    - key: Retry-After
+      value: "2951"
+      disabled: false
+      description: "On 429: whole seconds to wait before retrying."
+    - key: X-RateLimit-Limit
+      value: "2951"
+      disabled: false
+      description: Requests allowed per window for this API key (the general per-key limiter).
+    - key: X-RateLimit-Remaining
+      value: "2951"
+      disabled: false
+      description: Requests left in the current window for this API key.
+    - key: X-RateLimit-Reset
+      value: "2951"
+      disabled: false
+      description: Seconds until the current window resets.
+    - key: X-RateLimit-Window
+      value: "2951"
+      disabled: false
+      description: Window length in seconds.
+    - key: X-RateLimit-Mode
+      value: observe
+      disabled: false
+      description: "`observe` while the general per-key limiter only measures and refuses nothing. Endpoint-specific limits (availability checks, registrations, renewals and others) are enforced regardless, with 429 and Retry-After."
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "status": "ERROR",
+        "message": "Rate limit exceeded. Please try again later.",
+        "code": "RATE_LIMIT_EXCEEDED",
+        "ttlRemaining": 7212
+      }
+order: 3000

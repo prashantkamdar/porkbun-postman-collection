@@ -1,0 +1,17 @@
+name: Porkbun Sandbox
+values:
+  - key: baseUrl
+    value: 'https://api.porkbun.com/api/json/v3'
+    enabled: true
+    type: default
+    description: Same base URL as production; a sandbox key routes calls to an isolated test environment with fake credit.
+  - key: apiKey
+    value: ''
+    enabled: true
+    type: secret
+    description: 'Sandbox API key (pk1_sb_...). Get one instantly with API Key Management > Initiate an API key authorization request, body {"sandbox": true}. Never commit a value.'
+  - key: secretApiKey
+    value: ''
+    enabled: true
+    type: secret
+    description: Sandbox secret API key (sk1_sb_...). Never commit a value.

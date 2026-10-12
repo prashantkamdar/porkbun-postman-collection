@@ -1,0 +1,33 @@
+$kind: http-request
+description: |-
+  What changed between a restore point and the zone as it stands now.
+
+  - `missing` -- in the restore point, not live. These are the records a restore would add back.
+  - `extra` -- live, not in the restore point. A restore leaves these alone unless you pass `prune`.
+  - `inSync` -- true when neither list has anything in it.
+
+  Records are compared on **name, type, content and priority**, not on id: an id means nothing across a delete and re-create, and what anyone means by "the same record" is the data. SOA and NS are excluded from both lists because they are the zone's own scaffolding.
+
+  For masked records (parking, `ALIAS`, `HTTPS`) the value shown is the one you configured, not the internal host it resolves to.
+url: "{{baseUrl}}/dns/diff/:domain/:snapshotId"
+method: GET
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+  - key: snapshotId
+    value: "1234"
+    disabled: false
+    description: (Required) A restore point id from GET /dns/history/{domain}.
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/Compare a restore point with the live zone.resources/examples
+order: 3000

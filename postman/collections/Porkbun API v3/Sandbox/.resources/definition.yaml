@@ -1,0 +1,3 @@
+$kind: collection
+description: Isolated sandbox/test environment (sandbox API keys, pk1_sb_…).
+order: 16000

@@ -1,0 +1,39 @@
+$kind: http-request
+description: |-
+  **Applies to:** Secure Static Hosting only — a WordPress site returns `NOT_SUPPORTED_FOR_PRODUCT`; manage its content through WordPress instead.
+
+  Upload static files to the domain's Secure Static Hosting space. Send `files` as an array of `{ path, content }` where `content` is base64. Total payload ≤ 10 MB per request (split larger sites across calls). Only static-web file types are accepted (html/css/js/images/fonts/…); server-executable types are rejected. Hosting must be ACTIVE. A file’s `path` may include directories (e.g. `assets/css/style.css`); any missing parent directories are created automatically. Paths are sanitized (no traversal/control chars) and the filename extension must be an allowed static-web type.
+url: "{{baseUrl}}/hosting/deploy/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "files": [
+        {
+          "path": "index.html",
+          "content": "string"
+        },
+        {
+          "path": "index.html",
+          "content": "string"
+        }
+      ]
+    }
+settings: {}
+examples: ./.resources/Upload site files (static hosting only).resources/examples
+order: 4000

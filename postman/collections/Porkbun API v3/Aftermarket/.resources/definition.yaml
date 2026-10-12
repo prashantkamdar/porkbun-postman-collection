@@ -1,0 +1,3 @@
+$kind: collection
+description: "Registered domains that are for sale: partner aftermarkets (Afternic, Sedo, Atom, NameBright, DAX), Porkbun Marketplace and DAX auctions, in one search. Read-only; buying happens on porkbun.com through each listing's buyUrl."
+order: 14000

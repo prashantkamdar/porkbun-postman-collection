@@ -1,0 +1,32 @@
+$kind: http-request
+description: Retrieve all DNS records for a domain that match a specific subdomain and record type. Omit `subdomain` (or leave the path segment empty) to query the root domain. Supports both GET (with header auth) and POST (with body or header auth).
+url: "{{baseUrl}}/dns/retrieveByNameType/:domain/:type/:subdomain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+  - key: type
+    value: A
+    disabled: false
+    description: (Required) DNS record type (A, AAAA, CNAME, MX, TXT, etc.)
+  - key: subdomain
+    value: www
+    disabled: false
+    description: Subdomain portion only. Omit or leave empty for root domain records.
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/Retrieve DNS records by name and type (POST).resources/examples
+order: 5000

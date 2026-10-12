@@ -1,0 +1,15 @@
+$kind: http-request
+description: Machine-readable registration requirements for a TLD. Returns whether the TLD is registerable via the API (`apiRegisterable`), the `/domain/create` request body as a JSON Schema, the fixed registration term, WHOIS-privacy/validated-address/registrant-only flags, and — for TLDs with registry eligibility rules (e.g. .us nexus, .ca legal type) — a second JSON Schema (`registryRequirements`) enumerating those fields with allowed values and labels. Call this before /domain/create to know upfront whether and how a TLD can be registered. Read-only; GET (header auth) or POST (body or header auth).
+url: "{{baseUrl}}/domain/getRegistrationRequirements/:tld"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: tld
+    value: us
+    disabled: false
+    description: (Required) TLD without a leading dot, e.g. `com`, `us`, `ca`.
+settings: {}
+examples: ./.resources/Get TLD registration requirements (JSON Schema).resources/examples
+order: 31000

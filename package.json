@@ -1,0 +1,17 @@
+{
+  "name": "porkbun-postman-collection",
+  "version": "1.0.0",
+  "description": "Git-native Postman collection for the Porkbun API v3, generated from the official OpenAPI spec.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "update-spec": "bash scripts/update-spec.sh",
+    "postprocess": "node scripts/postprocess-collection.mjs",
+    "export": "node scripts/export-v2.mjs",
+    "lint": "postman collection lint \"postman/collections/Porkbun API v3\""
+  },
+  "devDependencies": {
+    "yaml": "^2.9.1"
+  }
+}

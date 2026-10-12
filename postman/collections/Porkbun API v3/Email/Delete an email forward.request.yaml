@@ -1,0 +1,28 @@
+$kind: http-request
+description: "Delete one forward, named by its `address` and `forwardTo` (an address can forward to several). When it was the domain's last forward and there are no email hosting mailboxes, Porkbun's forwarding MX and SPF records are removed too (`dnsRecordsRemoved: true`)."
+url: "{{baseUrl}}/email/deleteForward/:domain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+body:
+  type: json
+  content: |-
+    {
+      "address": "info",
+      "forwardTo": "me@example.net"
+    }
+settings: {}
+examples: ./.resources/Delete an email forward.resources/examples
+order: 4000

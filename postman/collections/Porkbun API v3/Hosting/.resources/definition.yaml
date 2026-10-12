@@ -1,0 +1,13 @@
+$kind: collection
+description: |-
+  Two hosting products share these endpoints — pick one with the `sku` you pass to `/hosting/create`:
+
+  • **Secure Static Hosting** — you upload the files; Porkbun serves them over HTTPS. SKUs `PIXIESECURESTATIC…`
+  • **Cloud for WordPress** — a managed WordPress site; you manage it through WordPress itself. SKUs `CLOUDWORDPRESS…`
+
+  Shared by both: `/hosting/plans`, `/hosting/create`, `/hosting/get`, `/hosting/delete`.
+  Static hosting only: `/hosting/deploy`, `/hosting/files`, `/hosting/makeDir`, `/hosting/deleteFile` (they return `NOT_SUPPORTED_FOR_PRODUCT` on a WordPress site).
+  WordPress only: `/hosting/createWpCredentials`, `/hosting/getWpCredentials`, `/hosting/deleteWpCredentials`.
+
+  Both products: the domain's first provision is a 15-day free trial that auto-renews at the plan price; a re-provision after deprovision is charged (one free trial per domain).
+order: 9000

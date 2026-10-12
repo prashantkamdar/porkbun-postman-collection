@@ -1,0 +1,15 @@
+$kind: http-request
+description: Retrieve the authoritative nameservers listed at the registry for the domain. Supports both GET (with header auth) and POST (with body or header auth). **Nameservers are an unordered set.** This reads live from the registry, and registries are free to return the set in any order — so the order here will often differ from the order you sent to `/domain/updateNs`. Order carries no meaning in DNS (an NS RRset is unordered, RFC 1034/2181) and is not preserved by the parent zone. Compare nameservers as a set; if you are writing a Terraform provider or similar, model this as a set, not an ordered list, or every plan will show phantom drift.
+url: "{{baseUrl}}/domain/getNs/:domain"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: domain
+    value: example.com
+    disabled: false
+    description: (Required) Domain name, e.g. example.com
+settings: {}
+examples: ./.resources/Get nameservers (GET).resources/examples
+order: 18000

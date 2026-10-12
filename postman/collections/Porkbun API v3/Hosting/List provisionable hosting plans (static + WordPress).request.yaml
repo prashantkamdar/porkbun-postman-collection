@@ -1,0 +1,13 @@
+$kind: http-request
+description: |-
+  **Applies to:** Both products.
+
+  List the hosting plans that can be provisioned via the API, with price, interval, trial length, and features. Pass a row's `plan` to `/hosting/create` and its `price` (cents) as `acknowledgedCost`. Currently Secure Static Hosting; more products are added over time. Also available via POST. Includes both Secure Static Hosting and Cloud for WordPress (managed WordPress) plans; the `product` field distinguishes them.
+url: "{{baseUrl}}/hosting/plans"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/List provisionable hosting plans (static + WordPress).resources/examples
+order: 1000

@@ -1,0 +1,3 @@
+$kind: collection
+description: Domain availability (single or up to 25 at once), registration, nameservers, URL forwarding, glue records, and auto-renewal
+order: 4000

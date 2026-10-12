@@ -1,0 +1,3 @@
+$kind: collection
+description: IP detection and credential verification
+order: 1000

@@ -1,0 +1,11 @@
+$kind: http-request
+name: "Mock server: list mockable endpoints"
+description: Credential-free. Returns a directory of every endpoint that can be mocked, each with a ready-to-call mock URL.
+url: "{{baseUrl}}/mock"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+settings: {}
+examples: ./.resources/Mock server- list mockable endpoints.resources/examples
+order: 1000

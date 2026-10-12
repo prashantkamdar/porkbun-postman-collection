@@ -1,0 +1,40 @@
+$kind: http-request
+description: |-
+  Check availability and pricing for up to 25 domains in one call. Same endpoint as the single check, with a `domains` array in the body and no domain in the path.
+
+  **Prefer this over looping the single check.** Checks are chunked per registry, so a batch is materially less work for us than the same names one at a time, and the budget reflects that: this draws on a separate allowance of **200 domains per 60 seconds** per account, against 10 checks per 10 seconds for the single form. Counting is per DOMAIN, not per request, so 25 domains spends 25 of the 200.
+
+  **Sustained bulk checking.** An account that checks about 1,800 names over three hours while registering little of what it checks (fewer than one domain per 200 names over a day) is treated as scanning for the next 24 hours: its checks, single and bulk, on every API version, share a budget of 50 names per 5 minutes. Over it, the call is refused whole with `RATE_LIMIT_EXCEEDED`, `reason: "SUSTAINED_BULK_CHECKING"` and `retryAfter`; nothing is part-answered. Normal use, including checking a long list of candidate names once, is nowhere near this. Accounts that buy (100 or more registrations in a year) and affiliates sending orders are never treated as scanning, and a per-key limit from support overrides it.
+
+  **Partial results are normal and must be read.** Three lists come back and they mean different things:
+  - `domains` - answered, keyed by domain name, each value identical in shape to the single-check `response`.
+  - `invalid` - entries that are not checkable at all (not a domain, unsupported TLD). One typo does not fail the call; the other names are still answered.
+  - `unresolved` - the registry did not answer in time. These are **neither available nor taken**; treating them as unavailable is wrong. Retry them.
+
+  Duplicates are removed before the budget is charged. If more than 25 remain, nothing is checked and `BULK_CHECK_TOO_MANY` is returned rather than a truncated answer.
+
+  **Latency.** This is synchronous: one request, one complete answer, no polling. 25 domains across 25 different TLDs measures around 3 seconds, because the connection manager fans a batch that fits under every registry's cap out as a single command. A few registries cap low and **.de accepts one domain per command**, so a batch heavy in those becomes several sequential commands; if that would need more than 4, the call is refused with `BULK_CHECK_TOO_SLOW` rather than left to time out mid-response.
+url: "{{baseUrl}}/domain/checkDomain"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "domains": [
+        "example.com",
+        "example.net",
+        "example.dev"
+      ]
+    }
+settings: {}
+examples: ./.resources/Check several domains at once.resources/examples
+order: 1000

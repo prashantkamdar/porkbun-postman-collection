@@ -1,0 +1,23 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Dependencies and run output
+node_modules/
+newman/
+postman-cli-reports/
+*.log
+
+# Secrets and local overrides - never commit API keys
+.env
+.env.*
+*.local.*
+*.local
+postman/environments/*.local.environment.yaml
+postman/globals/
+
+# Scratch downloads
+tmp/

@@ -1,0 +1,22 @@
+$kind: http-request
+description: |-
+  Poll to check whether the account holder has approved an API key authorization request. Returns `status: PENDING` while awaiting approval. On approval, returns the public API key. For a **PKCE** request (one created with a codeChallenge), pass the matching codeVerifier here to receive BOTH keys once (secretapikey is included in that single response and never again); the secret must be claimed within 10 minutes of approval or the request expires (`REQUEST_EXPIRED`) and a new one is needed. For a **legacy** request the secret API key is never transmitted via this endpoint — it is displayed in the user's browser and must be pasted into the application.
+
+  **Rate limit:** 120 requests per IP per 3600 seconds.
+url: "{{baseUrl}}/apikey/retrieve"
+method: POST
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "requestToken": "b31dbd151ec9213b525ee2f0aab967306fb28b045d881728602a33ea5e8cf36c",
+      "codeVerifier": "BayBjrflIAaBayBjrflIAaBayBjrflIAaBayBjrflIAa"
+    }
+settings: {}
+examples: ./.resources/Poll for API key approval.resources/examples
+order: 2000

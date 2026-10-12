@@ -1,0 +1,22 @@
+$kind: http-request
+description: |-
+  Purchases and top-ups need a verified email address and phone number (`VERIFICATION_REQUIRED`). This emails the usual verification message, a link plus a code, to the address on the account (or to a new address waiting for verification). Whoever reads that inbox, the person or an agent with access to it, passes the code to `POST /account/verifyEmail/confirm`; clicking the link works too. The address cannot be chosen or changed over the API, and the code is never returned by the API or in a webhook: it only proves anything because it arrives in that inbox.
+
+  A second request within 10 minutes returns `codeAlreadySent` instead of emailing again; the earlier code stays valid for 3 days. Accounts subscribed to `account.verification.code_sent` get a webhook when the email goes out. Already verified: `alreadyVerified: true`. Not available on sandbox keys.
+url: "{{baseUrl}}/account/verifyEmail/send"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: "{}"
+settings: {}
+examples: ./.resources/Email a verification code to the account's address.resources/examples
+order: 14000

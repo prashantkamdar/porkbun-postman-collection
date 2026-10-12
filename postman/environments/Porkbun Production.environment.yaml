@@ -1,0 +1,17 @@
+name: Porkbun Production
+values:
+  - key: baseUrl
+    value: 'https://api.porkbun.com/api/json/v3'
+    enabled: true
+    type: default
+    description: Live Porkbun API. Real registrations, DNS changes and charges.
+  - key: apiKey
+    value: ''
+    enabled: true
+    type: secret
+    description: Live API key (pk1_...). Create at https://porkbun.com/account/api. Never commit a value.
+  - key: secretApiKey
+    value: ''
+    enabled: true
+    type: secret
+    description: Live secret API key (sk1_...). Never commit a value.

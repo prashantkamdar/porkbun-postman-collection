@@ -1,0 +1,27 @@
+$kind: http-request
+description: List recent delivery attempts across the account (newest first), optionally filtered by endpoint or status. The bulky payload is omitted — use GET /webhook/delivery/{id} for it. History is retained about 30 days. Read-only; supports GET (header auth) or POST (body or header auth).
+url: "{{baseUrl}}/webhook/deliveries?endpointId=2951&status=DELIVERED&start=2951&limit=2951"
+method: GET
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: endpointId
+    value: "2951"
+    disabled: false
+    description: Only deliveries for this endpoint.
+  - key: status
+    value: DELIVERED
+    disabled: false
+    description: Filter by delivery status.
+  - key: start
+    value: "2951"
+    disabled: false
+    description: Pagination offset (default 0).
+  - key: limit
+    value: "2951"
+    disabled: false
+    description: Page size, 1-200 (default 50).
+settings: {}
+examples: ./.resources/List webhook deliveries.resources/examples
+order: 9000

@@ -1,0 +1,114 @@
+$kind: collection
+description: |-
+  Subscribe HTTPS endpoints to account events and Porkbun will `POST` a signed JSON payload to them as those events happen — no polling required. Manage endpoints with the **Webhooks** endpoints in this reference, the MCP tools (`create_webhook`, `list_webhooks`, …), or the web UI at `porkbun.com/account/api`.
+
+  **Event types:** `domain.registered`, `domain.renewed`, `domain.transfer.completed`, `domain.expiring` (fires at 60/30/5 days before expiry), `dns.record.created`, `dns.record.updated`, `dns.record.deleted`, `account.verification.code_sent`, `account.verification.completed`, `cloudflare.connect.completed`, `cloudflare.connect.failed` (a Cloudflare move reached a terminal state — `status` in the payload distinguishes `done` from `skipped`/`failed`, so you can stop polling `/cloudflare/getQueue`). Subscribe to specific types, to a prefix wildcard like `dns.*`, or to `*` for everything (recommended — you'll receive new event types automatically). Call `GET /webhook/eventTypes` for the live catalog.
+
+  **Payload envelope** — every delivery has the same outer shape:
+
+  ```json
+  {
+    "event": "domain.registered",
+    "id": "018f9c2a-7b3e-7c41-9b8a-2f1e6d4c5a90",
+    "createdAt": "2026-06-17T18:30:00Z",
+    "data": { "domain": "example.com", "tld": "com", "expireDate": "2027-06-17 18:30:00" }
+  }
+  ```
+
+  `id` is a UUIDv7 (time-ordered) and is also sent as the `X-Porkbun-Webhook-Id` header; use it to dedupe, since an endpoint may occasionally receive the same event more than once. `createdAt` is UTC (ISO 8601). The `data` object is event-specific; its fields are listed below.
+
+  **What each event sends in `data`.** Dates inside `data` are UTC, formatted `YYYY-MM-DD HH:MM:SS`. Fields may be added over time, so ignore ones you don't recognise. No event carries contact details, auth codes, keys or other secrets.
+
+  | Event | When it fires | `data` fields |
+  |---|---|---|
+  | `domain.registered` | A registration completes | `domain`, `tld`, `expireDate` |
+  | `domain.renewed` | A renewal completes (manual, API or auto-renew) | `domain`, `tld`, `expireDate` (the new expiry) |
+  | `domain.transfer.completed` | An inbound transfer finishes and the domain is in the account | `domain`, `tld` |
+  | `domain.expiring` | 60, 30 and 5 days before expiry | `domain`, `tld`, `daysToExpire` (number: 60, 30 or 5), `expireDate` |
+  | `dns.record.created` | A record is added (website, API, MCP, or a connected app) | `domain`, `name`, `id`, `type`, `content`, `ttl`, `prio` |
+  | `dns.record.updated` | A record is changed | `domain`, `name`, `id`, `type`, `content`, `ttl`, `prio` (the values after the change) |
+  | `dns.record.deleted` | A record is removed | `domain`, `name`, `id`, `type`, `content` (the values it had) |
+  | `cloudflare.connect.completed` | A move to Cloudflare finished | `domain`, `status` (`done`), `message`, `cfAccountId`, `zoneId`, `previousNameservers`, `assignedNameservers`, `completedAt` |
+  | `cloudflare.connect.failed` | A move to Cloudflare stopped without finishing | Same fields as completed; `status` is `failed` or `skipped`, `message` says why, `zoneId` may be `null` and the nameserver lists empty |
+  | `account.verification.code_sent` | A verification code went to the account's email address or phone (from the website or the API) | `channel` (`email` or `phone`), `method` (`email`, `sms` or `call`), `sentTo` (masked), `expiresInMinutes` |
+  | `account.verification.completed` | The account's email address or phone was verified (by link, website or API) | `channel`, `emailVerified`, `phoneVerified` (the account's state after this) |
+  | `webhook.test` | You call `POST /webhook/test` | `endpointId` (number), `message` |
+
+  Field notes:
+
+  - `domain` is the registered domain (`example.com`); `tld` is its extension without the dot (`com`).
+  - DNS events: `name` is the full hostname (`www.example.com`, or `example.com` for the apex). `id`, `ttl` and `prio` are strings, the same as in `/dns/retrieve`, and `prio` is `null` for types that have none. Record changes made by Porkbun itself for certificate issuance (`_acme-challenge` names) are not sent.
+  - Verification events never contain the code: it only proves the address or phone is real because it arrives there. `code_sent` tells an agent to ask the person for it; `completed` tells it to retry what failed with `VERIFICATION_REQUIRED` once both are `true`. Login codes are not sent.
+  - Cloudflare events: `previousNameservers` and `assignedNameservers` are arrays of hostnames; `cfAccountId` and `zoneId` are Cloudflare's IDs.
+
+  Examples:
+
+  ```json
+  {
+    "event": "domain.expiring",
+    "id": "018f9c2a-7b3e-7c41-9b8a-2f1e6d4c5a91",
+    "createdAt": "2026-06-17T09:00:00Z",
+    "data": { "domain": "example.com", "tld": "com", "daysToExpire": 30, "expireDate": "2026-07-17 18:30:00" }
+  }
+  ```
+
+  ```json
+  {
+    "event": "dns.record.updated",
+    "id": "018f9c2a-7b3e-7c41-9b8a-2f1e6d4c5a92",
+    "createdAt": "2026-06-17T18:31:05Z",
+    "data": { "domain": "example.com", "name": "www.example.com", "id": "123456789", "type": "A", "content": "192.0.2.1", "ttl": "600", "prio": null }
+  }
+  ```
+
+  ```json
+  {
+    "event": "cloudflare.connect.completed",
+    "id": "018f9c2a-7b3e-7c41-9b8a-2f1e6d4c5a93",
+    "createdAt": "2026-06-17T19:02:11Z",
+    "data": {
+      "domain": "example.com", "status": "done", "message": "Connected to Cloudflare.",
+      "cfAccountId": "0123456789abcdef0123456789abcdef", "zoneId": "fedcba9876543210fedcba9876543210",
+      "previousNameservers": ["curitiba.ns.porkbun.com", "fortaleza.ns.porkbun.com"],
+      "assignedNameservers": ["anna.ns.cloudflare.com", "lee.ns.cloudflare.com"],
+      "completedAt": "2026-06-17 19:02:10"
+    }
+  }
+  ```
+
+  To see any event's exact payload against your own handler, use a sandbox key and `POST /sandbox/triggerWebhook` with `{"eventType": "...", "domain": "example.com"}`; `GET /webhook/delivery/{id}` shows the full payload of any past delivery.
+
+  **Delivery headers:**
+
+  - `X-Porkbun-Event` — the event type (e.g. `domain.renewed`).
+  - `X-Porkbun-Webhook-Id` — the event UUID (matches `id` in the body).
+  - `X-Porkbun-Webhook-Timestamp` — Unix seconds when the request was signed.
+  - `X-Porkbun-Signature` — `sha256=` + the signature (see below).
+
+  **Verify the signature.** The signature is `HMAC-SHA256(secret, "{timestamp}.{rawBody}")` where `secret` is the endpoint's signing secret, `{timestamp}` is the `X-Porkbun-Webhook-Timestamp` header value, and `{rawBody}` is the exact bytes of the request body (verify before parsing). Compare using a constant-time equality check, and reject timestamps that are too old (e.g. >5 minutes) to blunt replay attacks.
+
+  ```php
+  $timestamp = $_SERVER['HTTP_X_PORKBUN_WEBHOOK_TIMESTAMP'];
+  $signature = $_SERVER['HTTP_X_PORKBUN_SIGNATURE']; // "sha256=..."
+  $body      = file_get_contents('php://input');
+  $expected  = 'sha256=' . hash_hmac('sha256', $timestamp . '.' . $body, $endpointSecret);
+  if (!hash_equals($expected, $signature) || abs(time() - (int)$timestamp) > 300) {
+      http_response_code(400); exit;
+  }
+  // signature OK — now json_decode($body) and process
+  ```
+
+  ```javascript
+  import crypto from 'node:crypto';
+  const ts  = req.header('X-Porkbun-Webhook-Timestamp');
+  const sig = req.header('X-Porkbun-Signature');
+  const expected = 'sha256=' + crypto.createHmac('sha256', endpointSecret)
+    .update(`${ts}.${rawBody}`).digest('hex');
+  const ok = crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig))
+    && Math.abs(Date.now()/1000 - Number(ts)) < 300;
+  ```
+
+  **Delivery log & manual resend.** Every attempt is recorded — list recent deliveries with `GET /webhook/deliveries` (filter by `endpointId` or `status`, newest first) and fetch one with its full payload via `GET /webhook/delivery/{id}`. History is retained ~30 days. To replay a delivery (e.g. after fixing a bug on your side), call `POST /webhook/resend` with the delivery `id`; it re-queues a fresh attempt reusing the **original event id**, so a consumer that dedupes on `X-Porkbun-Webhook-Id` treats it as the same event. The target endpoint must still exist and be ACTIVE.
+
+  **Responding & retries.** Return any `2xx` status to acknowledge. Non-2xx responses, timeouts, or connection errors are retried with exponential backoff (~1m, 5m, 30m, 2h, 6h) up to 6 attempts. An endpoint that racks up 20 consecutive failures is automatically disabled and the account owner emailed; re-enable it (which resets the failure counter) via `POST /webhook/update` with `status: "ACTIVE"`. Use `POST /webhook/test` to send a `webhook.test` event and confirm your verifier works end-to-end.
+order: 11000

@@ -1,0 +1,28 @@
+$kind: http-request
+description: Update an endpoint's URL, event subscriptions, and/or status. Only the supplied fields change. Set `status` to `DISABLED` to pause deliveries or `ACTIVE` to resume (resuming also resets the consecutive-failure counter). **URL requirements:** the endpoint must be an `https://` URL on the standard port 443, with a hostname that resolves to a public internet address. Private, loopback, link-local, CGNAT and other reserved ranges are refused (`INVALID_WEBHOOK_URL`) because Porkbun delivers from inside its own network. Credentials in the URL (`https://user:pass@host`) are also refused — authenticate the receiver by verifying the `X-Porkbun-Signature` HMAC instead. A hostname that does not resolve yet is accepted, so you can register the endpoint before the receiver is deployed, but delivery is re-checked against these rules immediately before each request.
+url: "{{baseUrl}}/webhook/update"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: "{{$guid}}"
+    disabled: false
+    description: Optional, recommended on every purchase and write. Send a unique value (a UUID) per intended operation. Repeating the request with the same key and an identical body within 24 hours returns the original response instead of doing it again, so a retry after a timeout cannot double-charge or double-apply. The same key with a different body returns 409 IDEMPOTENCY_KEY_MISMATCH; while the first request is still running, 409 IDEMPOTENCY_KEY_IN_USE.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "id": 42,
+      "url": "https://example.com/hook",
+      "events": [
+        "string",
+        "string"
+      ],
+      "status": "ACTIVE"
+    }
+settings: {}
+examples: ./.resources/Update a webhook endpoint.resources/examples
+order: 5000

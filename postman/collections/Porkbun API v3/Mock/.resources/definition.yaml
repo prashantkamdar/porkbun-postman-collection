@@ -1,0 +1,3 @@
+$kind: collection
+description: Credential-free mock server returning schema-accurate example responses for any endpoint.
+order: 17000
